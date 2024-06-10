@@ -151,7 +151,7 @@ void loop() {
      if ( wires.isWin() ) {
       stateMain = WIN;
      }
-    if ( wires.isLose() ) {
+    if ( timer.isTimerZero() || wires.isLose() ) {
       stateMain = LOSE;
      }
     break;
@@ -167,6 +167,11 @@ void loop() {
     break;
 
     case END:
+      if ( button.isLongPressed() ) {
+        stateMain = SELECT_TIME;
+        timer.blink(true);
+        timer.showTime(totalTime, 0);
+      }
     break;
 
     default:
