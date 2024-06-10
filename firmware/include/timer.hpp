@@ -62,7 +62,8 @@ public:
          if ( millis - this->timer > 1000 ) {
             if (this->seconds == 0 ) {
                if ( this->minutes == 0 ) {
-                  enterFinish();
+                  this->state = FINISH;
+                  this->showLose();
                } else {
                   this->minutes--;
                   this->seconds = 59;
@@ -75,13 +76,13 @@ public:
             seg.displayTime(this->minutes, this->seconds, this->dash, true);
          }
       }
-
-      if ( this->state == FINISH ) {
-         showLose();
-      }
       
       return 0;
     }
+
+   bool isTimerZero () {
+      return this->minutes == 0 && this->seconds == 0;
+   }
 
    void showLose() {
       uint8_t x[4] = { SEG_D | SEG_E | SEG_F,
@@ -89,6 +90,7 @@ public:
                        SEG_A | SEG_C | SEG_D | SEG_F | SEG_G,
                        SEG_A | SEG_D | SEG_E | SEG_F | SEG_G };
       seg.displayRaw(x, false);
+      this->state = FINISH;
    }
 
    void showYeah() {
@@ -97,28 +99,35 @@ public:
                        SEG_A | SEG_B | SEG_C | SEG_E | SEG_F | SEG_G,
                        SEG_B | SEG_C | SEG_E | SEG_F | SEG_G };
       seg.displayRaw(x, false);
+      this->state = FINISH;
    }
 
    void showDashes() {
       uint8_t x[4] = { SEG_G, SEG_G, SEG_G, SEG_G };
       seg.displayRaw(x, true);
+      this->state = START;
    }
 
-   void enterConfig () {
-      this->seg.setBlink(2);
-      this->state = CONFIG;
+   void blink(bool on) {
+      this->seg.setBlink( (on ? 2 : 0) );
+   }
+
+   void showTime (uint8_t minutes, uint8_t seconds) {
+     this->seg.displayTime(minutes, seconds, true, true);
+     this->state = START;
+   }
+
+   void enterCountdown (uint32_t minutes) {
+      this->totalMinutes = minutes;
+      this->enterCountdown();
    }
 
    void enterCountdown () {
-      this->minutes = totalMinutes;
+      this->minutes = this->totalMinutes;
       this->seconds = 0;
       this->state = COUNTDOWN;
       seg.displayTime(this->minutes, this->seconds, true, this->dash);
       this->timer = millis();
-   }
-
-   void enterFinish () {
-      this->state = FINISH;
    }
 
     /* The abstract reset function resets the task. If successfull the method returns 0, otherwise it returns an error

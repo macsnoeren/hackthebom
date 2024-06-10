@@ -3,13 +3,21 @@
 #include <driver.h>
 #include <Arduino.h>
 
+enum BUTTON_STATE {
+   ON,
+   OFF
+};
+
 class Button: public IDriver {
 private:
    uint64_t timer;
    uint8_t state;   
+   bool buttonPressed;
+   bool longPressed;
+   bool longPressedStarted;
 
 public:
-    Button(): timer(0), state(0) {
+    Button(): timer(0), state(0), buttonPressed(false), longPressed(false), longPressedStarted(false) {
 
     }
 
@@ -36,11 +44,42 @@ public:
     */
     uint8_t loop(uint64_t millis) {
       
+      if ( !this->longPressedStarted && this->pressed() ) {
+         this->longPressedStarted = true;
+         this->timer = millis;
+      }
+
+      if ( this->longPressedStarted ) {
+         if ( millis - this->timer > 10000 ) {
+            this->longPressed = true;
+            this->longPressedStarted = false;
+         }
+      }
+
+      if ( !this->pressed() ) {
+         if ( this->longPressedStarted ) {
+            this->buttonPressed = true;
+         }
+         this->longPressedStarted = false;
+      }
+
       return 0;
     }
 
     bool pressed() {
       return digitalRead(D3) == LOW;
+    }
+
+    bool isPressed() {
+      bool r = this->buttonPressed;
+      this->buttonPressed = false;
+      return r;
+    }
+
+    bool isLongPressed() {
+      bool r = this->longPressed;
+      this->longPressed = false;
+      return r;
     }
 
     /* The abstract reset function resets the task. If successfull the method returns 0, otherwise it returns an error

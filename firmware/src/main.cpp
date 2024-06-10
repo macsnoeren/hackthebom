@@ -1,7 +1,6 @@
 // Start up: Select program (short selection, long enter), select timer (short selection, long enter), (short) start assignment
 // Buzzer +: D8 -: GND
 // Timer: VCC: 5V, GND: GND, SCL: D1, SDA: D2
-// LED: D5, D6, D7
 // SWITCH: +: 3v3, -: D0
 // 
 
@@ -12,9 +11,6 @@
 #include <ESP8266WiFi.h>
 #include <ESP8266WebServer.h>
 #include <EEPROM.h>
-
-//#include <IotWebConf.h>
-//#include <IotWebConfOptionalGroup.h>
 
 #include <driver.h>
 #include <timer.hpp>
@@ -44,21 +40,16 @@ IDriver *drivers[] = { (IDriver*) &timer,
 
 ESP8266WebServer server(80);
 
-const char html_header[] PROGMEM = R"rawliteral(
-<!DOCTYPE HTML>
-<html>
- <head>
-  <meta name="viewport" content="width=device-width, initial-scale=1">
-  <title>HTB</title>
- </head>
- <body>
-  <H1>Hack The Bom</H1>
-)rawliteral";
-
-const char html_footer[] PROGMEM = R"rawliteral(
- </body>
-</html>
-)rawliteral";
+enum MAIN_STATES {
+  SELECT_TIME,
+  READY,
+  GAME,
+  WIN,
+  LOSE,
+  END,
+};
+MAIN_STATES stateMain = SELECT_TIME;
+uint8_t totalTime = 30;
 
 const char index_html[] PROGMEM = R"rawliteral(
 <!DOCTYPE HTML><html>
@@ -121,28 +112,66 @@ void setup() {
   server.on("/", handleRoot);
   server.on("/admin", handleAdmin);
   server.onNotFound(handleNotFound);
-
   server.begin();
 
+  timer.blink(true);
+  timer.showTime(totalTime, 0);
+
   Serial.println("Ready.");
-  buzzer.beep();
-  buzzer.off();
 }
 
 void loop() {
   for ( IDriver *driver: drivers ) {
       driver->loop(millis());
   }
+  
+  switch (stateMain) {
+    case SELECT_TIME:
+      if ( button.isPressed() ) {
+        totalTime = (totalTime + 5) % 100;
+        timer.showTime(totalTime, 0);
+        delay(500);
+      }
+      if ( button.isLongPressed() ) {
+        stateMain = READY;
+        timer.blink(false);
+        delay(1000);
+        button.isPressed(); // reset
+      }
+    break;
 
-  if ( button.pressed() ) {
-    timer.enterCountdown();
-    buzzer.on();
-  } else {
-    buzzer.off();
-  }
+    case READY:
+      if ( button.isPressed() ) { 
+        stateMain = GAME;
+        timer.enterCountdown(totalTime);
+      }
+    break;
 
-  //buzzer.beep();
-  //printf("RAND: %ld\n", random(0, 7));
+    case GAME:
+     if ( wires.isWin() ) {
+      stateMain = WIN;
+     }
+    if ( wires.isLose() ) {
+      stateMain = LOSE;
+     }
+    break;
+
+    case WIN:
+      timer.showYeah();
+      stateMain = END;
+    break;
+
+    case LOSE:
+      timer.showLose();
+      stateMain = END;
+    break;
+
+    case END:
+    break;
+
+    default:
+      stateMain = SELECT_TIME;
+  };
 
   server.handleClient();
 }
@@ -153,7 +182,6 @@ void handleRoot() {
 
 void handleAdmin() {
   char html[1000];
-  //sprintf(html, "%s%s%s", html_header, wires.getCode(), html_footer);
   sprintf(html, admin_html, wires.getCode());
   server.send(200, "text/html", html);
   timer.enterCountdown();

@@ -103,6 +103,14 @@ public:
       return this->code;
     }
 
+    bool isWin () {
+      return false;
+    }
+
+    bool isLose () {
+      return false;
+    }
+
     /* The abstract reset function resets the task. If successfull the method returns 0, otherwise it returns an error
        number.
     */
