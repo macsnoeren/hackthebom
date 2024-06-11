@@ -75,7 +75,7 @@ const char admin_html[] PROGMEM = R"rawliteral(
 </html>)rawliteral";
 
 void setup() {
-  Serial.begin(9600);
+  Serial.begin(115200);
 
   EEPROM.begin(512);
   uint8_t es = EEPROM.read(0);

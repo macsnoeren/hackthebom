@@ -5,21 +5,17 @@
 
 // update with counter, so anti-dender is created.
 
-enum BUTTON_STATE {
-   ON,
-   OFF
-};
-
 class Button: public IDriver {
 private:
    uint64_t timer;
-   uint8_t state;   
-   bool buttonPressed;
+   uint8_t value;
+
+   bool pressed;
    bool longPressed;
-   bool longPressedStarted;
+   bool longPressedRead;
 
 public:
-    Button(): timer(0), state(0), buttonPressed(false), longPressed(false), longPressedStarted(false) {
+    Button(): timer(0), value(0), longPressed(false), longPressedRead(false) {
 
     }
 
@@ -45,43 +41,57 @@ public:
        documented in the concrete task that implements this loop.
     */
     uint8_t loop(uint64_t millis) {
-      
-      if ( !this->longPressedStarted && this->pressed() ) {
-         this->longPressedStarted = true;
+      // low-pass filter to remove high freq of button press (anti-dender)
+      if ( this->buttonPressed() ) {
+         if ( this->value < 255 ) {
+            this->value = this->value + 1;
+         }
+      } else {
+         if ( this->value > 0 ) {
+            this->value = this->value - 1;
+         }
+      }
+
+      if ( this->pressed ) {
+         if ( millis - this->timer > 10000 ) {
+            this->longPressed = true;
+         }
+      } else {
          this->timer = millis;
       }
 
-      if ( this->longPressedStarted ) {
-         if ( millis - this->timer > 10000 ) {
-            this->longPressed = true;
-            this->longPressedStarted = false;
-         }
-      }
-
-      if ( !this->pressed() ) {
-         if ( this->longPressedStarted ) {
-            this->buttonPressed = true;
-         }
-         this->longPressedStarted = false;
-      }
-
-      return 0;
+       return 0;
     }
 
-    bool pressed() {
+    bool buttonPressed() {
       return digitalRead(D3) == LOW;
     }
 
     bool isPressed() {
-      bool r = this->buttonPressed;
-      this->buttonPressed = false;
-      return r;
+      if ( this->value > 128 && !this->pressed ) {
+         this->pressed = true;
+         return true;
+      }
+
+      if ( this->value < 128 && this->pressed ) {
+         this->pressed = false;
+      }
+
+      return false;
     }
 
     bool isLongPressed() {
-      bool r = this->longPressed;
-      this->longPressed = false;
-      return r;
+      if ( this->longPressed && !this->longPressedRead ) {
+         this->longPressedRead = true;
+         return true;
+      }
+
+      if ( !this->pressed && this->longPressedRead ) {
+         this->longPressed = false;
+         this->longPressedRead = false;
+      }
+
+      return false;
     }
 
     /* The abstract reset function resets the task. If successfull the method returns 0, otherwise it returns an error
