@@ -19,6 +19,7 @@ private:
    uint8_t state;
    uint8_t order[5];
    char code[4];
+   uint8_t totalMistakes;
 
   void resetWireOrder() {
     for (uint8_t i=0; i < 5; i++ ) {
@@ -66,7 +67,7 @@ private:
   }
 
 public:
-    Wires(): timer(0), state(0) {
+    Wires(): timer(0), state(0), totalMistakes(0) {
 
     }
 
@@ -80,9 +81,47 @@ public:
     */
     uint8_t setup() {
       this->createRandomWireOrder();
+
+      // GND( D0, D5, D6, D7 ), 3V3( D8 )
+      // D0 external pullup.
+      pinMode(D0, INPUT_PULLUP);
+      pinMode(D5, INPUT_PULLUP);
+      pinMode(D6, INPUT_PULLUP);
+      pinMode(D7, INPUT_PULLUP);
+      pinMode(D8, INPUT); // outside pulldown
+
       Serial.println("Setup Wires Ready!");
 
       return 0;
+    }
+
+    bool stateWire (uint8_t n) {
+      switch (n) {
+        case 1:
+          return digitalRead(D0) == LOW;
+          break;
+        case 2:
+          return digitalRead(D5) == LOW;
+          break;
+        case 3:
+          return digitalRead(D6) == LOW;
+          break;
+        case 4:
+          return digitalRead(D7) == LOW;
+          break;
+        case 5:
+          return digitalRead(D8) == HIGH;
+          break;
+      }
+      printf("Wire ERROR\n");
+      return false;
+    }
+
+    void printWires () {
+      printf("Wires: \n");
+      for ( uint8_t i=0 ; i < 5; i++ ) {
+        printf("- %d => %d\n", i+1, this->stateWire(i+1));
+      }
     }
 
     /* The abstract loop method handles the main functionality. This loop method shall not contain any blocking function
@@ -91,7 +130,15 @@ public:
        documented in the concrete task that implements this loop.
     */
     uint8_t loop(uint64_t millis) {
-      
+      if ( this->timer == 0 ) {
+        this->timer = millis;
+      }
+
+      if ( millis - this->timer > 1000 ) {
+        this->printWires();
+        this->timer = millis;
+      }
+
       return 0;
     }
 

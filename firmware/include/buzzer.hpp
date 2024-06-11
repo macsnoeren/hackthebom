@@ -22,8 +22,8 @@ public:
        should be documented in the concrete task that implements this setup.
     */
     uint8_t setup() {
-      pinMode(D8, OUTPUT);
-      digitalWrite(D8, HIGH);
+      pinMode(D4, OUTPUT);
+      digitalWrite(D4, HIGH);
       
 
       Serial.println("Setup Buzzer Ready!");
@@ -42,17 +42,17 @@ public:
     }
 
    void on() {
-      digitalWrite(D8, HIGH);
+      digitalWrite(D4, HIGH);
    }
 
    void off() {
-      digitalWrite(D8, LOW);
+      digitalWrite(D4, LOW);
    }
 
    void beep() {
-      digitalWrite(D8, LOW);
+      digitalWrite(D4, LOW);
       delay(500);
-      digitalWrite(D8, HIGH);
+      digitalWrite(D4, HIGH);
       delay(500);
    }
 
