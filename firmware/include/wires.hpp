@@ -15,10 +15,13 @@ enum WIRE_NUMBER {
 
 class Wires: public IDriver {
 private:
-   uint64_t timer;
-   uint8_t state;
-   uint8_t order[5];
-   char code[4];
+  uint64_t timer;
+  uint8_t state;
+  uint8_t order[5];
+  char code[4];
+  uint8_t wires[5]; // Real wire state
+  uint8_t orderCut[5];
+
    uint8_t totalMistakes;
 
   void resetWireOrder() {
@@ -66,9 +69,29 @@ private:
     this->createCode();
   }
 
+  bool inWireOrderCut(uint8_t n) {
+    for (uint8_t i=0; i < 5; i++ ) {
+      if ( this->orderCut[i] == n ) {
+        return true;
+      }
+    }
+    return false;
+  }
+
+  void addWireOrderCut(uint8_t n) {
+    for (uint8_t i=0; i < 5; i++ ) {
+      if ( this->orderCut[i] == 0 ) { // Found empty spot, put it in
+        this->orderCut[i] = n;
+      }
+    }
+  }
+
 public:
     Wires(): timer(0), state(0), totalMistakes(0) {
-
+      for ( uint8_t i=0; i < 5; i++ ) {
+        this->wires[i] = 0;
+        this->orderCut[i] = 0;
+      }
     }
 
     ~Wires() {
@@ -120,7 +143,7 @@ public:
     void printWires () {
       printf("Wires: \n");
       for ( uint8_t i=0 ; i < 5; i++ ) {
-        printf("- %d => %d\n", i+1, this->stateWire(i+1));
+        printf("- %d => %d\n", i+1, this->wires[i]);
       }
     }
 
@@ -134,12 +157,46 @@ public:
         this->timer = millis;
       }
 
-      if ( millis - this->timer > 1000 ) {
-        this->printWires();
+      // low-pass filter to remove high freq of button press (anti-dender), RC=10ms
+      if ( (millis - this->timer) > 10 ) {
+        for ( uint8_t i=0; i < 5; i++ ) {
+          if ( this->stateWire(i+1) ) {
+            if ( this->wires[i] < 255 ) {
+              this->wires[i] = this->wires[i] + 1;
+            }
+          } else {
+            if ( this->wires[i] > 0 ) {
+              this->wires[i] = this->wires[i] - 1;
+            }
+          }
+          this->wires[i] = 0;
+        }
         this->timer = millis;
       }
 
+      // Check real wire order
+      for ( uint8_t i=0; i < 5; i++ ) {
+        if ( this->wires[i] > 128 ) { // Wire is cut
+          if ( !this->inWireOrderCut(i+1) ) { // This is the next wire that has been cut
+            this->addWireOrderCut(i+1);
+            printf("Wire cut detected: %d\n", i+1);
+          }
+        }
+      }
+
+      // Check
+
       return 0;
+    }
+
+    uint8_t totalWiresCut() {
+      uint8_t total = 0;
+      for (uint8_t i=0; i < 5; i++ ) {
+        if ( this->orderCut != 0 ) {
+          total++;
+        }
+      }
+      return total;
     }
 
     bool pressed() {
@@ -150,11 +207,24 @@ public:
       return this->code;
     }
 
-    bool isWin () {
+    // todo..
+    bool isWin () { // one or zero mistakes
+      uint8_t mistakeNumber = 0;
+      for ( uint8_t i=0; i < 5; i++ ) {
+        if ( this->order[i] != this->orderCut[i] ) {
+          mistakeNumber = this->orderCut[i];
+        }
+      }
+/*
+1, 4, 2, 5, 3
+4, 1, 2, 5, 3
+2, 1, 4, 5, 3
+*/
+
       return false;
     }
 
-    bool isLose () {
+    bool isLose () { // more than one mistake
       return false;
     }
 
