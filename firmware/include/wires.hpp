@@ -21,8 +21,8 @@ private:
   char code[4];
   uint8_t wires[5]; // Real wire state
   uint8_t orderCut[5];
-
-   uint8_t totalMistakes;
+  uint8_t totalMistakes;
+  uint8_t totalWireCuts;
 
   void resetWireOrder() {
     for (uint8_t i=0; i < 5; i++ ) {
@@ -78,16 +78,31 @@ private:
     return false;
   }
 
-  void addWireOrderCut(uint8_t n) {
+  // false: mistake, true: correct wire cut
+  bool addWireOrderCut(uint8_t n) {
     for (uint8_t i=0; i < 5; i++ ) {
       if ( this->orderCut[i] == 0 ) { // Found empty spot, put it in
-        this->orderCut[i] = n;
+        if ( this->order[i] == n ) { // correct wire
+          printf("CORRECT WIRE\n");
+          this->orderCut[i] = n;
+          return true;
+
+        } else { // not correct wire
+          printf("NOT CORRECT WIRE\n");
+          for (uint8_t i=0; i < 5; i++ ) {
+            if ( this->order[i] == n ) { // find position of cut
+              this->orderCut[i] = n; // put it on the correct position.
+            }
+          }
+          return false;
+        }
       }
     }
+    return false;
   }
 
 public:
-    Wires(): timer(0), state(0), totalMistakes(0) {
+    Wires(): timer(0), state(0), totalMistakes(0), totalWireCuts(0) {
       for ( uint8_t i=0; i < 5; i++ ) {
         this->wires[i] = 0;
         this->orderCut[i] = 0;
@@ -143,7 +158,7 @@ public:
     void printWires () {
       printf("Wires: \n");
       for ( uint8_t i=0 ; i < 5; i++ ) {
-        printf("- %d => %d\n", i+1, this->wires[i]);
+        printf("- %d => (%d, %d)\n", i+1, this->stateWire(i+1), this->wires[i]);
       }
     }
 
@@ -160,7 +175,7 @@ public:
       // low-pass filter to remove high freq of button press (anti-dender), RC=10ms
       if ( (millis - this->timer) > 10 ) {
         for ( uint8_t i=0; i < 5; i++ ) {
-          if ( this->stateWire(i+1) ) {
+          if ( !this->stateWire(i+1) ) {
             if ( this->wires[i] < 255 ) {
               this->wires[i] = this->wires[i] + 1;
             }
@@ -169,16 +184,18 @@ public:
               this->wires[i] = this->wires[i] - 1;
             }
           }
-          this->wires[i] = 0;
         }
         this->timer = millis;
       }
 
-      // Check real wire order
+      // Check real wire cutting order
       for ( uint8_t i=0; i < 5; i++ ) {
         if ( this->wires[i] > 128 ) { // Wire is cut
           if ( !this->inWireOrderCut(i+1) ) { // This is the next wire that has been cut
-            this->addWireOrderCut(i+1);
+            if ( !this->addWireOrderCut(i+1) ) { // correct wire
+              this->totalMistakes++;
+            }
+            this->totalWireCuts++;
             printf("Wire cut detected: %d\n", i+1);
           }
         }
@@ -209,23 +226,11 @@ public:
 
     // todo..
     bool isWin () { // one or zero mistakes
-      uint8_t mistakeNumber = 0;
-      for ( uint8_t i=0; i < 5; i++ ) {
-        if ( this->order[i] != this->orderCut[i] ) {
-          mistakeNumber = this->orderCut[i];
-        }
-      }
-/*
-1, 4, 2, 5, 3
-4, 1, 2, 5, 3
-2, 1, 4, 5, 3
-*/
-
-      return false;
+      return (this->totalWireCuts == 5 && this->totalMistakes < 2);
     }
 
     bool isLose () { // more than one mistake
-      return false;
+      return (this->totalMistakes > 1);
     }
 
     /* The abstract reset function resets the task. If successfull the method returns 0, otherwise it returns an error
