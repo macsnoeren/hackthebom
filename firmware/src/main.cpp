@@ -26,6 +26,7 @@ String PASSWORD;
 
 void handleRoot();
 void handleAdmin();
+void handleCode();
 void handleNotFound();
 
 Timer timer;
@@ -1381,16 +1382,164 @@ const char index_html[] PROGMEM = R"rawliteral(
 )rawliteral";
 
 const char admin_html[] PROGMEM = R"rawliteral(
-<!DOCTYPE HTML><html>
+<!DOCTYPE html>
+<html lang="en">
 <head>
-  <meta name="viewport" content="width=device-width, initial-scale=1">
-  <title>HTB</title>
- </head>
- <body>
-  <H1>Admin Hack The Bom</H1>
-  <H2>Code: %s</H2>
- </body>
-</html>)rawliteral";
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>HTB - Admin</title>
+    <style>
+        table {
+            width: 100%;
+            border-collapse: collapse;
+        }
+        th, td {
+            border: 1px solid black;
+            padding: 8px;
+            text-align: left;
+        }
+        th {
+            background-color: #f2f2f2;
+        }
+        .warning-box {
+            background-color: red;
+            color: white;
+            padding: 20px;
+            text-align: center;
+            font-size: 20px;
+            font-weight: bold;
+            border: 2px solid darkred;
+            width: 500px;
+            margin: 0 auto;
+            border-radius: 10px;
+        }
+    </style>
+</head>
+<body>
+
+<h1>Admin page</h1>
+
+<div class="warning-box">
+    The bomb is live! Settings cannot be changed! Disable this admin page before using the bomb in a live situation.
+</div>
+<br>
+
+<table>
+    <thead>
+        <tr>
+            <th>Parameter</th>
+            <th>Description</th>
+            <th>Options/Range</th>
+            <th>Default</th>
+        </tr>
+    </thead>
+    <tbody>
+        <tr>
+            <td>Countdown Timer</td>
+            <td>Sets the countdown duration before the simulated detonation.</td>
+            <td>1 to 90 minutes</td>
+            <td>30 minutes</td>
+        </tr>
+        <tr>
+            <td>Beep Frequency</td>
+            <td>Determines the interval at which the device emits a beeping sound.</td>
+            <td>1 second to 30 seconds</td>
+            <td>1 seconds</td>
+        </tr>
+        <tr>
+            <td>LED Light Pattern</td>
+            <td>Configures the flashing pattern of the LED indicators.</td>
+            <td>Steady, Blinking, Pulsing, Random</td>
+            <td>Blinking</td>
+        </tr>
+        <tr>
+            <td>Wire Colors</td>
+            <td>Sets the color scheme for the device's wires for easy identification.</td>
+            <td>Red, Blue, Green; Yellow, Purple, Orange; Black, White, Gray</td>
+            <td>Red, Blue, Green</td>
+        </tr>
+        <tr>
+            <td>Activation Code</td>
+            <td>Specifies the code required to arm the device.</td>
+            <td>4-digit number</td>
+            <td>1234</td>
+        </tr>
+        <tr>
+            <td>Deactivation Code</td>
+            <td>Specifies the code required to disarm the device. It determines the order of the wires to pull or cut. Make sure it is password protected before using the bomb.</td>
+            <td>4-digit hex number</td>
+            <td><a href="/code">show secret code</a></td>
+        </tr>
+        <tr>
+            <td>Sound Effects</td>
+            <td>Chooses the sound effect played by the device.</td>
+            <td>Beep, Buzz, Click, Custom sound (upload required)</td>
+            <td>Beep</td>
+        </tr>
+        <tr>
+            <td>Simulated Explosive Force</td>
+            <td>Displays the simulated explosive force level.</td>
+            <td>Low, Medium, High, Maximum</td>
+            <td>Medium</td>
+        </tr>
+        <tr>
+            <td>Error Messages</td>
+            <td>Customizes the error messages displayed during malfunction.</td>
+            <td>"Incorrect wire!", "Try again.", "Error detected."</td>
+            <td>"Incorrect wire!"</td>
+        </tr>
+        <tr>
+            <td>Display Brightness</td>
+            <td>Adjusts the brightness of the display screen.</td>
+            <td>1 (dim) to 10 (bright)</td>
+            <td>5</td>
+        </tr>
+        <tr>
+            <td>Temperature Sensor Sensitivity</td>
+            <td>Simulates the sensitivity of the device to temperature changes.</td>
+            <td>1 (low sensitivity) to 10 (high sensitivity)</td>
+            <td>5</td>
+        </tr>
+        <tr>
+            <td>Voice Activation</td>
+            <td>Enables or disables voice command functionality for arming or disarming.</td>
+            <td>On, Off</td>
+            <td>Off</td>
+        </tr>
+        <tr>
+            <td>Simulated GPS Location</td>
+            <td>Sets a simulated GPS location for the device.</td>
+            <td>Latitude and Longitude coordinates</td>
+            <td>0.0000, 0.0000</td>
+        </tr>
+        <tr>
+            <td>Random Event Generator</td>
+            <td>Adds random events during the countdown.</td>
+            <td>"Wire switch challenge", "Countdown speed doubled", "Bonus time added"</td>
+            <td>Off</td>
+        </tr>
+    </tbody>
+</table>
+</body>
+</html>
+)rawliteral";
+
+const char code_html[] PROGMEM = R"rawliteral(
+<!DOCTYPE html>
+<html>
+    <head>
+        <meta name="viewport" content="width=device-width, initial-scale=1">
+        <title>HTB</title>
+    </head>
+    <body>
+      <center>
+        <p>The unique wire deactivation code for %s:</p>
+        <p>%.4s</p>
+      </center>
+    </body>
+</html>
+)rawliteral";
+
 
 void setup() {
   Serial.begin(115200);
@@ -1429,11 +1578,14 @@ void setup() {
 
   server.on("/", handleRoot);
   server.on("/admin", handleAdmin);
+  server.on("/code", handleCode);
   server.onNotFound(handleNotFound);
   server.begin();
 
   timer.blink(true);
   timer.showTime(totalTime, 0);
+
+  //analogWrite(D4, 128);
 
   Serial.println("Ready.");
 }
@@ -1500,10 +1652,13 @@ void handleRoot() {
 }
 
 void handleAdmin() {
+  server.send(200, "text/html", admin_html);
+}
+
+void handleCode() {
   char html[1000];
-  sprintf(html, admin_html, wires.getCode());
+  sprintf(html, code_html, SSID.c_str(), wires.getCode());
   server.send(200, "text/html", html);
-  timer.enterCountdown();
 }
 
 void handleNotFound () {

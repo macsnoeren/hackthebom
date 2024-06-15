@@ -136,19 +136,18 @@ public:
     bool stateWire (uint8_t n) {
       switch (n) {
         case 1:
+          return analogRead(A0) > 500;
+        case 2:
           return digitalRead(D0) == LOW;
           break;
-        case 2:
+        case 3:
           return digitalRead(D5) == LOW;
           break;
-        case 3:
+        case 4:
           return digitalRead(D6) == LOW;
           break;
-        case 4:
-          return digitalRead(D7) == LOW;
-          break;
         case 5:
-          return digitalRead(D8) == HIGH;
+          return digitalRead(D7) == LOW;
           break;
       }
       printf("Wire ERROR\n");
@@ -172,8 +171,8 @@ public:
         this->timer = millis;
       }
 
-      // low-pass filter to remove high freq of button press (anti-dender), RC=10ms
-      if ( (millis - this->timer) > 10 ) {
+      // low-pass filter to remove high freq of button press (anti-dender), RC=20ms
+      if ( (millis - this->timer) > 20 ) {
         for ( uint8_t i=0; i < 5; i++ ) {
           if ( !this->stateWire(i+1) ) {
             if ( this->wires[i] < 255 ) {
