@@ -1585,8 +1585,6 @@ void setup() {
   timer.blink(true);
   timer.showTime(totalTime, 0);
 
-  //analogWrite(D4, 128);
-
   Serial.println("Ready.");
 }
 

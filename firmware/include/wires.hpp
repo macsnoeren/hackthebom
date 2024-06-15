@@ -120,13 +120,12 @@ public:
     uint8_t setup() {
       this->createRandomWireOrder();
 
-      // GND( D0, D5, D6, D7 ), 3V3( D8 )
+      // GND( D0, D5, D6, D7 ), 3V3( A0 )
       // D0 external pullup.
       pinMode(D0, INPUT_PULLUP);
       pinMode(D5, INPUT_PULLUP);
       pinMode(D6, INPUT_PULLUP);
       pinMode(D7, INPUT_PULLUP);
-      pinMode(D8, INPUT); // outside pulldown
 
       Serial.println("Setup Wires Ready!");
 
