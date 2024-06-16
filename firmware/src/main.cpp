@@ -214,6 +214,11 @@ void loop() {
     break;
 
     case END:
+      static uint32_t timer = millis();
+      if ( timer != 0 && millis() - timer > 20000 ) {
+        buzzer.mute();
+        timer = 0;
+      }
       // Do nothing, so the device needs to be restarted.
     break;
 

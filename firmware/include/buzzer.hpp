@@ -172,6 +172,16 @@ public:
       this->bf = BUZZER_TICK_A;
    }
 
+   /* Mute the buzzer
+    *  
+    * @param None
+    * @return None
+    */
+   void mute () {
+      this->off();
+      this->bf = BUZZER_MUTE;
+   }
+
    /* Start the win music.
     *  
     * @param None
