@@ -30,15 +30,13 @@
  *                 Wire connections: - A0 --- 3V3
  *                                   - D0 --- GND (external pull-up 100K to 3V3)
  *                                   - D5/D6/D7 --- GND (select internal pull-up)
- *                  
- * @date       : 20-02-2024
+ * @date       : 16-06-2024
  * @version    : 1.0
  * @updates    : 20-02-2024 (MS): Initial code.
  *               16-06-2024 (MS): Created the first release version.
  * @todo       : - Button press, even when I would like to go for long press, increases the timer.
  *               - Implementation to select which game is played.
  */
-
 #include <Arduino.h>
 #include <String.h>
 #include <math.h>
@@ -173,13 +171,13 @@ void loop() {
       if ( button.isPressed() ) {
         totalTimeDefault = (totalTimeDefault + 5) % 100;
         timer.showTime(totalTimeDefault, 0);
-        delay(500);
       }
+
       if ( button.isLongPressed() ) {
+        totalTimeDefault = (totalTimeDefault - 5) % 100; // Always an extra press - simple solution to fix.
+        timer.showTime(totalTimeDefault, 0);
         stateMain = READY;
         timer.blink(false);
-        delay(1000);
-        button.isPressed(); // reset
       }
     break;
 

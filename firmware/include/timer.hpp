@@ -19,8 +19,7 @@
  * @version    : 1.0
  * @updates    : 20-02-2024 (MS): Initial code.
  *               16-06-2024 (MS): Created the first release version.
- * @todo       : - Button press, even when I would like to go for long press, increases the timer.
- *               - Implementation to select which game is played.
+ * @todo       : 
  */
 #include <driver.h>
 
@@ -57,10 +56,9 @@ public:
 
    }
 
-
    /* The setup method initializes the task. This method should be called once at the startup of the board.
-      When the setup is successfull, the method returns 0, otherwise it returns an error number. The error numbers 
-      should be documented in the concrete task that implements this setup.
+    * When the setup is successfull, the method returns 0, otherwise it returns an error number. The error numbers 
+    * should be documented in the concrete task that implements this setup.
     *  
     * @param None
     * @return Zero is successfull and non-zero when an error occurred.
