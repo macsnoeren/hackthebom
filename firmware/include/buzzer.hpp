@@ -24,6 +24,15 @@
 #include <driver.h>
 #include <Arduino.h>
 
+// Buzzer functionality selection
+enum BuzzerFunctions {
+   BUZZER_MUTE,
+   BUZZER_TICK_A,
+   BUZZER_TICK_B,
+   BUZZER_LOSE,
+   BUZZER_WIN,
+};
+
 // Enumeration for notes to use music
 enum Notes : uint32_t { // Octave 3 - https://forum.professionalcomposers.com/t/note-frequency-chart-free-guide/506
    C  = 131,
@@ -40,17 +49,23 @@ enum Notes : uint32_t { // Octave 3 - https://forum.professionalcomposers.com/t/
    B  = 247, 
 };
 
+#define TOTAL_NOTES 57
+
 /* Class: Buzzer
  * The buzzer class provides high level function to control the sound.
  */
 class Buzzer: public IDriver {
 private:
    uint64_t timer; // Used for timing purposes to become non-blocking
-   uint32_t  value; // 100 -> 40.000
-   uint32_t notes[8] = {C, D, E, F, G, A, B, C*2};
+   uint32_t  value;
+   uint32_t notes[TOTAL_NOTES] = {E*2, E*2, B, C*2, D*2, D*2, C*2, B, A, A, A, C*2, E*2, E*2,
+                                  D*2, C*2, B, B, B, C*2, D*2, D*2, E*2, E*2, C*2, C*2, A, A, A,
+                                  D*2, D*2, F*2, A*2, A*2, G*2, F*2, E*2, E*2, E*2, C*2, E*2, E*2, 
+                                  D*2, C*2, B, B, B, C*2, D*2, D*2, E*2, E*2, C*2, C*2, A, A, A};
+   BuzzerFunctions bf;
 
 public:
-    Buzzer(): timer(0), value(100) {
+    Buzzer(): timer(0), value(0), bf(BUZZER_MUTE) {
 
     }
 
@@ -83,24 +98,98 @@ public:
     * @return Zero is successfull and non-zero when an error occurred.
     */
    uint8_t loop(uint64_t millis) {
-      if ( this->timer == 0 ) {
-         this->timer = millis;
-      
-      } else {
-         //if ( millis - this->timer > 1000 ) {
-             //this->beep(C);
-             //this->beep(D);
-             //this->beep(E);
-         //}
+      switch (this->bf) {
+         case BUZZER_TICK_A:
+            if ( this->timer == 0 ) {
+               this->timer = millis;
+            } else {
+               if ( millis - this->timer > 600 ) {
+                  this->beep(100);
+                  this->timer = millis;
+                  this->bf = BUZZER_TICK_B;
+               }
+            }
+            break;
 
-         if ( millis - this->timer > 2000 ) {
-           this->timer = millis;
-         }
+         case BUZZER_TICK_B:
+            if ( this->timer == 0 ) {
+               this->timer = millis;
+            } else {
+               if ( millis - this->timer > 600 ) {
+                  this->beep(200);
+                  this->timer = millis;
+                  this->bf = BUZZER_TICK_A;
+               }
+            }
+            break;
 
+         case BUZZER_LOSE:
+            if ( this->timer == 0 ) {
+               this->timer = millis;
+            } else {
+               if ( millis - this->timer > 0 ) {
+                  this->beep(C);
+                  this->beep(D);
+                  this->beep(E);
+                  this->beep(F);
+                  this->beep(G);
+                  this->beep(A);
+                  this->beep(B);
+                  this->timer = millis;
+               }
+            }
+            break;
+
+         case BUZZER_WIN:
+            if ( this->timer == 0 ) {
+               this->timer = millis;
+            } else {
+               if ( millis - this->timer > 200 ) {
+                  if ( value >= TOTAL_NOTES ) {
+                     value = 0;
+                  }
+                  on(this->notes[value++]);
+                  this->timer = millis;
+               }
+            }
+            break;
+
+         case BUZZER_MUTE:
+         default:
+            this->off();
       }
 
-      
       return 0;
+   }
+
+   /* Start the ticking bomb sound.
+    *  
+    * @param None
+    * @return None
+    */
+   void startTicking () {
+      this->off();
+      this->bf = BUZZER_TICK_A;
+   }
+
+   /* Start the win music.
+    *  
+    * @param None
+    * @return None
+    */
+   void startWin () {
+      this->off();
+      this->bf = BUZZER_WIN;
+   }
+
+   /* Start the lose music.
+    *  
+    * @param None
+    * @return None
+    */
+   void startLose() {
+      this->off();
+      this->bf = BUZZER_LOSE;
    }
 
    /* Make sound with the given frequency (default 1kHz).
@@ -110,7 +199,7 @@ public:
     */
    void on(uint32_t f = 1000) {
       analogWriteFreq(f);
-      analogWrite(D8, 1);
+      analogWrite(D8, 128);
    }
 
    /* Disable the sound (mute).
@@ -127,11 +216,29 @@ public:
     * @param f: frequency between 100 - 40000 Hz
     * @return None
     */
-   void beep(uint32_t f = 1000) {
+   void beep(uint32_t f = 1000, unsigned long d = 5) {
       this->on(f);
-      delay(5);
+      delay(d);
       this->off();
-      delay(5);
+      delay(d);
+   }
+
+   /* Make a beep sound for correct wire, which is blocking for 100 ms on the given frequency.
+    *  
+    * @param None
+    * @return None
+    */
+   void beepCorrectWire() {
+      this->beep(4000, 100);
+   }
+
+   /* Make a beep sound for incorrect, which is blocking for 100 ms on the given frequency.
+    *  
+    * @param None
+    * @return None
+    */
+   void beepNotCorrectWire() {
+      this->beep(500, 100);
    }
 
    /* The abstract reset function resets the task. If successfull the method returns 0, otherwise it returns an error

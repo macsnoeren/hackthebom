@@ -83,7 +83,7 @@ public:
       }
 
       if ( this->pressed ) {
-         if ( millis - this->timer > 10000 ) {
+         if ( millis - this->timer > 5000 ) {
             this->longPressed = true;
          }
       } else {

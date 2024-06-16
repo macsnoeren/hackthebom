@@ -34,8 +34,7 @@
  * @version    : 1.0
  * @updates    : 20-02-2024 (MS): Initial code.
  *               16-06-2024 (MS): Created the first release version.
- * @todo       : - Button press, even when I would like to go for long press, increases the timer.
- *               - Implementation to select which game is played.
+ * @todo       : - Implementation to select which game is played.
  */
 #include <Arduino.h>
 #include <String.h>
@@ -68,7 +67,7 @@ void handleNotFound();
 Timer timer;
 Buzzer buzzer;
 Button button;
-Wires wires;
+Wires wires(&buzzer);
 IDriver *drivers[] = { (IDriver*) &timer,
                        (IDriver*) &buzzer,
                        (IDriver*) &button,
@@ -149,6 +148,9 @@ void setup() {
   timer.blink(true);
   timer.showTime(totalTimeDefault, 0);
 
+  // Test the buzzer!
+  buzzer.beep();
+
   // Setup is ready and print it to the serial.
   Serial.println("Ready.");
 }
@@ -185,15 +187,19 @@ void loop() {
       if ( button.isPressed() ) { 
         stateMain = GAME;
         timer.enterCountdown(totalTimeDefault);
+        buzzer.startTicking();
+        wires.setup(); // Reset the game
       }
     break;
 
     case GAME:
      if ( wires.isWin() ) {
       stateMain = WIN;
+      buzzer.startWin();
      }
     if ( timer.isTimerZero() || wires.isLose() ) {
       stateMain = LOSE;
+      buzzer.startLose();
      }
     break;
 

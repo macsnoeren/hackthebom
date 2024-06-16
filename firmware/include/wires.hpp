@@ -26,6 +26,8 @@
 #include <Arduino.h>
 #include <math.h>
 
+#include <buzzer.hpp>
+
 // Enumaration variable to define the order of the wires.
 enum WIRE_NUMBER {
   WIRE_1,
@@ -47,6 +49,7 @@ private:
   uint8_t orderCut[5]; // The order array that is used to follow the cutting of the wires by the user
   uint8_t totalMistakes; // Total mistakes that the user has made
   uint8_t totalWireCuts; // Total wires the user already has cut
+  Buzzer* buzzer; // A link to the buzzer class
 
   /* Check whether wire number is already in the order array (wire 0 -> 4)
    *  
@@ -133,11 +136,13 @@ private:
       if ( this->orderCut[i] == 0 ) { // Found empty spot, put it in
         if ( this->order[i] == n ) { // correct wire
           printf("CORRECT WIRE\n");
+          this->buzzer->beepCorrectWire();
           this->orderCut[i] = n;
           return true;
 
         } else { // not correct wire
           printf("NOT CORRECT WIRE\n");
+          this->buzzer->beepNotCorrectWire();
           for (uint8_t i=0; i < 5; i++ ) {
             if ( this->order[i] == n ) { // find position of cut
               this->orderCut[i] = n; // put it on the correct position.
@@ -151,7 +156,7 @@ private:
   }
 
 public:
-  Wires(): timer(0), totalMistakes(0), totalWireCuts(0) {
+  Wires(Buzzer* buzzer): timer(0), totalMistakes(0), totalWireCuts(0), buzzer(buzzer) {
     for ( uint8_t i=0; i < 5; i++ ) { // Initialize the arrays
       this->order[i] = 0;
       this->wires[i] = 0;
@@ -171,6 +176,15 @@ public:
    * @return Zero is successfull and non-zero when an error occurred.
    */
   uint8_t setup() {
+    this->timer = 0;
+    this->totalMistakes = 0;
+    this->totalWireCuts = 0;
+    for ( uint8_t i=0; i < 5; i++ ) { // Initialize the arrays
+      this->order[i] = 0;
+      this->wires[i] = 0;
+      this->orderCut[i] = 0;
+    }
+
     this->createRandomWireOrder();
 
     // GND( D0, D5, D6, D7 ), 3V3( A0 )
