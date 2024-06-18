@@ -13,6 +13,12 @@ from Crypto.Random import get_random_bytes
 from getpass import getpass
 
 password = getpass("Type your password: ")
+password2 = getpass("Retype your password: ")
+
+if password != password2:
+    print("Passwords are not equal!")
+    quit()
+
 salt = b'!\xe0\xec\xf1%2\xe3\xebX\x04\x92\x92\x1a\x11\xe4\xe5' #get_random_bytes(16)
 keys = PBKDF2(password, salt, 64, count=1000000, hmac_hash_module=SHA512)
 aes_iv = keys[:32]

@@ -32,9 +32,7 @@ for file in dir_list:
             ct_bytes = b64decode(b64['ciphertext'])
             aes = AES.new(aes_key, AES.MODE_CBC, iv)
             plain = unpad(aes.decrypt(ct_bytes), AES.block_size)
-            print("Decrypted data:")
-            print("The message was: ", plain)
-
+            
             # Create the encrypted file
             with open(os.path.dirname(__file__) + "/" + file[0:-4], "wb") as f:
                 f.write(plain)
