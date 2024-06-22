@@ -143,6 +143,7 @@ private:
         } else { // not correct wire
           printf("NOT CORRECT WIRE\n");
           this->buzzer->beepNotCorrectWire();
+          this->buzzer->startTicking(300); // double speed
           for (uint8_t i=0; i < 5; i++ ) {
             if ( this->order[i] == n ) { // find position of cut
               this->orderCut[i] = n; // put it on the correct position.
