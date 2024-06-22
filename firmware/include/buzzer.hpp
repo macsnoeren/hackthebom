@@ -63,7 +63,7 @@ private:
                                   D*2, D*2, F*2, A*2, A*2, G*2, F*2, E*2, E*2, E*2, C*2, E*2, E*2, 
                                   D*2, C*2, B, B, B, C*2, D*2, D*2, E*2, E*2, C*2, C*2, A, A, A};
    BuzzerFunctions bf;
-   uint16_t tickerTimer;
+   uint16_t tickerTimer; // Speed og the ticker timer.
 
 public:
     Buzzer(): timer(0), value(0), bf(BUZZER_MUTE), tickerTimer(600) {
