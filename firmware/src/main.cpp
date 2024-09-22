@@ -57,11 +57,17 @@ String SSID = "HTB-" + String(system_get_chip_id());
 // Wi-Fi AP password and will be set later.
 String PASSWORD = "";
 
+int channel = random(1, 13);
+
+uint8_t GAME_SELECTION = 0;
+
 // Forward declaration of the different routes for the webpages.
 void handleRoot();
 void handleAdmin();
 void handleCode();
 void handleNotFound();
+String webDefusingCode = "";
+uint8_t webDefusingCodeTrials = 0;
 
 // Instantiate the used drivers that handle the hardware appropiately.
 Timer timer;
@@ -82,17 +88,18 @@ enum MAIN_STATES {
   SELECT_GAME, // Game selection state
   SELECT_TIME, // Time selection state
   READY,       // Ready to start, game and time selected
-  GAME,        // Game is started
+  GAME_1,        // Game is started
+  GAME_2,        // Game is started
   WIN,         // The user won!
   LOSE,        // The user lost!
   END,         // End
 };
 
 // FSM state variable that indicate in which state we are in.
-MAIN_STATES stateMain = SELECT_TIME;
+MAIN_STATES stateMain = SELECT_GAME;
 
-// Total time that students get as default value in minutes (30 minutes).
-uint8_t totalTimeDefault = 30;
+// Total time that students get as default value in minutes (50 minutes).
+uint8_t totalTimeDefault = 50;
 
 /**
  * Setup that is used to execute the setup of the hardware and software before
@@ -132,8 +139,7 @@ void setup() {
   // Print the name of the device and the password.
   printf("%s / %s\n", SSID.c_str(), PASSWORD.c_str());
 
-  // Setup the Wi-Fi Access Point (AP)`
-  int channel = random(1, 13);
+  // Setup the Wi-Fi Access Point (AP)
   WiFi.softAP(SSID, PASSWORD, channel, 0, 1); // one client allowed!
   Serial.printf("AP IP address (channel %d): %s\n", channel, WiFi.softAPIP().toString().c_str());
 
@@ -146,7 +152,8 @@ void setup() {
 
   // First state is blinking and show the default time.
   timer.blink(true);
-  timer.showTime(totalTimeDefault, 0);
+  timer.showGameSelection(GAME_SELECTION+1);
+//  timer.showTime(totalTimeDefault, 0);
 
   // Test the buzzer!
   buzzer.beep();
@@ -169,6 +176,22 @@ void loop() {
   
   // Implementation of the FSM by using a switch statement.
   switch (stateMain) {
+    case SELECT_GAME:
+      if ( button.isPressed() ) {
+        GAME_SELECTION = (GAME_SELECTION+1) % 2;
+        timer.showGameSelection(GAME_SELECTION+1);
+        printf("GAME: %d\n", GAME_SELECTION);
+      }
+
+      if ( button.isLongPressed() ) {
+        GAME_SELECTION = GAME_SELECTION-1; // Always one back due to button press
+        GAME_SELECTION = GAME_SELECTION % 2;
+        timer.showTime(totalTimeDefault, 0);
+        stateMain = SELECT_TIME;
+        buzzer.beep();
+      }
+    break;
+
     case SELECT_TIME:
       if ( button.isPressed() ) {
         totalTimeDefault = (totalTimeDefault + 5) % 100;
@@ -180,24 +203,47 @@ void loop() {
         timer.showTime(totalTimeDefault, 0);
         stateMain = READY;
         timer.blink(false);
+        buzzer.beep();
       }
     break;
 
     case READY:
       if ( button.isPressed() ) { 
-        stateMain = GAME;
+        stateMain = GAME_1; // Default
         timer.enterCountdown(totalTimeDefault);
         buzzer.startTicking();
         wires.setup(); // Reset the game
+
+        // Print the name of the device and the password.
+        printf("%s / %s\n", SSID.c_str(), PASSWORD.c_str());
+        printf("GAME: %d\n", GAME_SELECTION+1);
+
+        if ( GAME_SELECTION == 0 ) { stateMain = GAME_1; }
+        if ( GAME_SELECTION == 1 ) { 
+          WiFi.softAP(SSID, "h4cKTh!5", channel, 0, 1); // Reset it to a fixed password for game 2 wi-fi
+          stateMain = GAME_2;
+        }
       }
     break;
 
-    case GAME:
+    case GAME_1: // Minor Game with wires
      if ( wires.isWin() ) {
       stateMain = WIN;
       buzzer.startWin();
      }
     if ( timer.isTimerZero() || wires.isLose() ) {
+      stateMain = LOSE;
+      buzzer.startLose();
+     }
+    break;
+
+    case GAME_2: // Introduction, year 1 Game
+    if ( webDefusingCode.equals("BC84") ) { // Hardcoded!
+      stateMain = WIN;
+      buzzer.startWin();
+    }
+
+    if ( timer.isTimerZero() || webDefusingCodeTrials > 3) {
       stateMain = LOSE;
       buzzer.startLose();
      }
@@ -237,7 +283,20 @@ void loop() {
  * @return None
  */
 void handleRoot() {
-  server.send(200, "text/html", index_html);
+  if ( GAME_SELECTION == 1 ) {
+    server.send(200, "text/html", index_html_2);
+    webDefusingCode = server.arg("code");
+    if ( !webDefusingCode.equals("") ) {
+      webDefusingCodeTrials++;
+      if ( webDefusingCodeTrials > 0 ) {
+        buzzer.startTicking(300); // double speed
+      }
+    }
+    printf("webDefusingCode: %s\n", webDefusingCode.c_str());
+
+  } else { // Default Game 1
+    server.send(200, "text/html", index_html);
+  }
 }
 
 /**

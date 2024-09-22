@@ -190,6 +190,12 @@ public:
       this->state = START;
    }
 
+   void showGameSelection(uint8_t game) {
+      uint8_t a[] = {9, 10, 16, game};
+      this->seg.display(a);
+      //this->seg.displayUnit(game, 0, 9);
+   }
+
    /* Start the countdown functionality of the timer. It starts the given minutes and counts down.
     *  
     * @param minutes: total minutes that need to be count down.
