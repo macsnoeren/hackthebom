@@ -30,11 +30,12 @@
  *                 Wire connections: - A0 --- 3V3
  *                                   - D0 --- GND (external pull-up 100K to 3V3)
  *                                   - D5/D6/D7 --- GND (select internal pull-up)
- * @date       : 16-06-2024
- * @version    : 1.0
+ * @date       : 22-09-2024
+ * @version    : 1.1
  * @updates    : 20-02-2024 (MS): Initial code.
  *               16-06-2024 (MS): Created the first release version.
- * @todo       : - Implementation to select which game is played.
+ *               22-09-2024 (MS): Added Game 2 for the first year students including game selection.
+ * @todo       : 
  */
 #include <Arduino.h>
 #include <String.h>
