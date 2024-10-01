@@ -318,7 +318,7 @@ void handleAdmin() {
  */
 void handleCode() {
   char html[1000];
-  sprintf(html, code_html, SSID.c_str(), wires.getCode());
+  snprintf(html, sizeof(html), code_html, SSID.c_str(), wires.getCode());
   server.send(200, "text/html", html);
 }
 
