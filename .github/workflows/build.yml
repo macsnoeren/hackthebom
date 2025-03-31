@@ -1,12 +1,36 @@
 name: build
 
-on: [push]
+on:
+  push:
+    branches: master
+
+permissions:
+  contents: write
+  pages: write
+  id-token: write
 
 jobs:
   build:
     runs-on: ubuntu-latest
     steps:
       - uses: actions/checkout@v4
+
+      - name: Get versions from source file
+        run: |
+          SW_VERSION=$(cat firmware/src/main.cpp  | grep '@version' | grep -oP '[0-9]+\.[0-9]+')
+          SW_VERSION_TAG=$(cat firmware/src/main.cpp  | grep '@version' | grep -oP '[0-9]+\.[0-9]+' | tr "." "-")
+          echo "VERSION=$SW_VERSION.${{github.run_id}}" >> $GITHUB_ENV
+          echo "VERSION_TAG=$SW_VERSION_TAG.${{github.run_id}}" >> $GITHUB_ENV
+          echo "VERSION found '$VERSION' and TAG created '$VERSION_TAG'"
+
+      - name: Push version tag
+        run: |
+          tag=${{env.VERSION_TAG}}
+          message='Automatic release creation tag ${{env.VERSION_TAG}}'
+          git config user.name "${GITHUB_ACTOR}"
+          git config user.email "${GITHUB_ACTOR}@users.noreply.github.com"
+          git tag -a "${tag}" -m "${message}"
+          git push origin "${tag}"
 
       - name: Set up Python
         uses: actions/setup-python@v3
@@ -16,9 +40,18 @@ jobs:
       - name: Install dependencies
         run: |
           pip install -U https://github.com/platformio/platformio/archive/develop.zip
-#          cd firmware
-#          pio pkg install --global --platform symlink://.
       
       - name: Build firmware
         run: |
           pio run -d firmware
+
+      - name: Release creation
+        uses: softprops/action-gh-release@v2
+        with:
+          name: "Release ${{env.VERSION}}"
+          tag_name: ${{env.VERSION_TAG}}
+          files: |
+            - .pio/build/d1_mini_lite/firmware.bin
+
+
+            
