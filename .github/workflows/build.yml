@@ -16,8 +16,9 @@ jobs:
       - name: Install dependencies
         run: |
           pip install -U https://github.com/platformio/platformio/archive/develop.zip
+          cd firmware
           pio pkg install --global --platform symlink://.
       
       - name: Build firmware
         run: |
-          pio run -d firmware
+          pio run
