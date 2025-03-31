@@ -42,18 +42,44 @@ jobs:
       - name: Build firmware
         run: |
           pio run -d firmware
-          ls -la
-          ls -la ~
-          ls -la firmware
-          ls -la firmware/.pio.d1_mini_lite
 
-#      - name: Release creation
-#        uses: softprops/action-gh-release@v2
-#        with:
-#          name: "Release ${{env.VERSION}}"
-#          tag_name: ${{env.VERSION_TAG}}
-#          files: |
-#            - .pio/build/d1_mini_lite/firmware.bin
+      - name: Release creation
+        uses: softprops/action-gh-release@v2
+        with:
+          name: "Release ${{env.VERSION}}"
+          tag_name: ${{env.VERSION_TAG}}
+          files: |
+            - firmware/.pio/build/d1_mini_lite/firmware.bin
 
+      - name: Prepare Files
+        run: |
+          mkdir -p deploy
+          cp firmware/.pio/build/d1_mini_lite/firmware.bin deploy/.
+          cp flasher/index.html deploy/.
+          echo "{ \"name\": \"Hack The Bom!\"," > deploy/manifest.json
+          echo "  \"version\": \"${{env.VERSION}}\"," >> deploy/manifest.json
+          echo "  \"new_install_prompt_erase\": true," >> deploy/manifest.json
+          echo "  \"builds\": [ { \"chipFamily\": \"ESP8266\"," >> deploy/manifest.json
+          echo "                  \"parts\": [ { \"path\": \"https://avanseti.github.io/HACKTHEBOM/firmware.bin\", \"offset\": 0 } ]" >> deploy/manifest.json
+          echo "                }" >> deploy/manifest.json
+          echo "              ]" >> deploy/manifest.json
+          echo "}" >> deploy/manifest.json
+          ls -l deploy
+          cat deploy/manifest.json
+          cat deploy/index.html
 
-            
+      - name: Upload artifact
+        uses: actions/upload-pages-artifact@v3
+        with:
+          path: './deploy'
+
+  deploy:
+    environment:
+      name: github-pages
+      url: ${{ steps.deployment.outputs.page_url }}
+    runs-on: ubuntu-latest
+    needs: build
+    steps:
+      - name: Deploy to GitHub Pages
+        id: deployment
+        uses: actions/deploy-pages@v4
