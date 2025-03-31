@@ -1,10 +1,6 @@
 name: build
 
-on:
-  push:
-    branches: |
-    - main
-    - development
+on: push
 
 permissions:
   contents: write
