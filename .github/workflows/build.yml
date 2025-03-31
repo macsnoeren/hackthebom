@@ -60,7 +60,7 @@ jobs:
           echo "  \"version\": \"${{env.VERSION}}\"," >> deploy/manifest.json
           echo "  \"new_install_prompt_erase\": true," >> deploy/manifest.json
           echo "  \"builds\": [ { \"chipFamily\": \"ESP8266\"," >> deploy/manifest.json
-          echo "                  \"parts\": [ { \"path\": \"https://avanseti.github.io/HACKTHEBOM/firmware.bin\", \"offset\": 0 } ]" >> deploy/manifest.json
+          echo "                  \"parts\": [ { \"path\": \"https://macsnoeren.github.io/hackthebom/firmware.bin\", \"offset\": 0 } ]" >> deploy/manifest.json
           echo "                }" >> deploy/manifest.json
           echo "              ]" >> deploy/manifest.json
           echo "}" >> deploy/manifest.json
