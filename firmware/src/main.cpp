@@ -38,7 +38,7 @@
  * @todo       : 
  */
 #include <Arduino.h>
-#include <String.h>
+//#include <String.h>
 #include <math.h>
 
 #include <ESP8266WiFi.h>
