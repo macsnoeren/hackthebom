@@ -45,7 +45,7 @@ jobs:
           ls -la
           ls -la ~
           ls -la firmware
-          ls -la .pio
+          ls -la firmware/.pio.d1_mini_lite
 
 #      - name: Release creation
 #        uses: softprops/action-gh-release@v2
