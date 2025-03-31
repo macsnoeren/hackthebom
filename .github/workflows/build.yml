@@ -1,0 +1,23 @@
+name: build
+
+on: [push]
+
+jobs:
+  build:
+    runs-on: ubuntu-latest
+    steps:
+      - uses: actions/checkout@v4
+
+      - name: Set up Python
+        uses: actions/setup-python@v3
+        with:
+          python-version: "3.9"
+
+      - name: Install dependencies
+        run: |
+          pip install -U https://github.com/platformio/platformio/archive/develop.zip
+          pio pkg install --global --platform symlink://.
+      
+      - name: Build firmware
+        run: |
+          pio run -d firmware
