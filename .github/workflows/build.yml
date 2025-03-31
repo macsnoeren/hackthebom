@@ -19,7 +19,7 @@ jobs:
           SW_VERSION_TAG=$(cat firmware/src/main.cpp  | grep '@version' | grep -oP '[0-9]+\.[0-9]+' | tr "." "-")
           echo "VERSION=$SW_VERSION.${{github.run_id}}" >> $GITHUB_ENV
           echo "VERSION_TAG=$SW_VERSION_TAG.${{github.run_id}}" >> $GITHUB_ENV
-          echo "VERSION found '$VERSION' and TAG created '$VERSION_TAG'"
+          echo "VERSION found '$SW_VERSION' and TAG created '$SW_VERSION_TAG'"
 
       - name: Push version tag
         run: |
@@ -44,6 +44,7 @@ jobs:
           pio run -d firmware
           ls -la
           ls -la ~
+          ls -la firmware
           ls -la .pio
 
 #      - name: Release creation
