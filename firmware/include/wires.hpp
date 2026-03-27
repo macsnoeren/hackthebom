@@ -38,24 +38,28 @@ enum WIRE_NUMBER {
   WIRE_5
 };
 
-/* Class: Wires
- * The wires class provides high level function to control the defusing wires.
+/**
+ * @class Wires
+ * @brief Beheert de status en ontmantelingslogica van de fysieke draden van de bom.
+ * 
+ * Deze klasse implementeert de IDriver interface en handelt het inlezen van de draden,
+ * de softwarematige ontstoring (debounce) en de volgorde van doorknippen af.
  */
 class Wires: public IDriver {
 private:
-  uint64_t timer; // For timing purposes to become non-blocking
-  uint8_t order[5]; // The array that contains the order that the wires needs to be defused
-  char code[4]; // The heximal code that is extracted from the defusing order
-  uint8_t wires[5]; // The wire value based on the state to see whether a wire is cut or not cut
-  uint8_t orderCut[5]; // The order array that is used to follow the cutting of the wires by the user
-  uint8_t totalMistakes; // Total mistakes that the user has made
-  uint8_t totalWireCuts; // Total wires the user already has cut
-  Buzzer* buzzer; // A link to the buzzer class
+  uint64_t timer;           ///< Timer voor non-blocking updates (anti-dender).
+  uint8_t order[5];         ///< De juiste volgorde waarin draden doorgeknipt moeten worden.
+  char code[5];             ///< Hexadecimale code gegenereerd uit de volgorde (verhoogd naar 5 voor null-terminator).
+  uint8_t wires[5];         ///< Accumulator voor ontstoring per draad.
+  uint8_t orderCut[5];      ///< Bijgehouden volgorde van doorgeknipte draden.
+  uint8_t totalMistakes;    ///< Aantal fouten gemaakt door de gebruiker.
+  uint8_t totalWireCuts;    ///< Totaal aantal draden dat momenteel is doorgeknipt.
+  Buzzer* buzzer;           ///< Referentie naar de buzzer voor feedback.
 
-  /* Check whether wire number is already in the order array (wire 0 -> 4)
-   *  
-   * @param None
-   * @return True when found, otherwise false.
+  /**
+   * @brief Controleert of een draadnummer al in de gegenereerde volgorde staat.
+   * @param n Het draadnummer (1-5).
+   * @return True als de draad al aanwezig is, anders false.
    */
   bool inWireOrder(uint8_t n) {
     for (uint8_t i=0; i < 5; i++ ) {
@@ -66,10 +70,8 @@ private:
     return false;
   }
 
-  /* Print on the serial the wire order that is in the order array.
-   *  
-   * @param None
-   * @return None
+  /**
+   * @brief Print de gegenereerde draadvolgorde naar de seriële monitor voor debugging.
    */
   void printWireOrder () {
     printf("Wire order: \n");
@@ -79,25 +81,22 @@ private:
     printf("\n");
   }
 
-  /* Create the heximal code based on the order array. Note the the order array needs
-   * to be initialized before this method is called.
-   *  
-   * @param None
-   * @return None
+  /**
+   * @brief Genereert een unieke hex-code gebaseerd op de ontmantelingsvolgorde.
+   * De code wordt gebruikt in de web-interface.
    */
   void createCode () {
     uint32_t c = 0;
     for (uint8_t i=0; i < 5; i++ ) {
       c = c + (this->order[i] << (i*3));
     }
-    sprintf(this->code, "%X", c);
+    // 15 bits max (5 * 3 bits) past in 4 hex karakters + \0. Buffer moet 5 groot zijn.
+    snprintf(this->code, sizeof(this->code), "%X", c);
     printf("Code: %s\n", this->code);
   }
 
-  /* Create a random order of the wires to defuse the (fake) bomb.
-   *  
-   * @param None
-   * @return None
+  /**
+   * @brief Genereert een willekeurige volgorde voor de 5 draden.
    */
   void createRandomWireOrder() {
     //printf("Create random order\n");
@@ -112,10 +111,10 @@ private:
     this->createCode();
   }
 
-  /* Check whether the wire that is cut is already found in the orderCut array.
-   *  
-   * @param None
-   * @return True when found, otherwise false.
+  /**
+   * @brief Controleert of een specifieke draad al als "doorgeknipt" is geregistreerd.
+   * @param n Draadnummer.
+   * @return True als de draad al is doorgeknipt.
    */
   bool inWireOrderCut(uint8_t n) {
     for (uint8_t i=0; i < 5; i++ ) {
@@ -126,11 +125,11 @@ private:
     return false;
   }
 
-  /* Add the wire number to the orderCut array. The function checks whether is is correct. When
-   * it is not correct, then the mistakes will be increased. 
-   *  
-   * @param None
-   * @return True correct wire is cut, otherwise false and the wrong wire has been cut.
+  /**
+   * @brief Registreert een nieuwe draadknip en valideert of dit de juiste draad was.
+   * Bij een foutieve draad wordt de ticking-snelheid van de buzzer verhoogd.
+   * @param n Het nummer van de doorgeknipte draad.
+   * @return True als de knip correct was volgens de volgorde.
    */
   bool addWireOrderCut(uint8_t n) {
     for (uint8_t i=0; i < 5; i++ ) {
@@ -158,6 +157,10 @@ private:
   }
 
 public:
+  /**
+   * @brief Constructor voor de Wires klasse.
+   * @param buzzer Pointer naar de Buzzer instantie voor audio feedback.
+   */
   Wires(Buzzer* buzzer): timer(0), totalMistakes(0), totalWireCuts(0), buzzer(buzzer) {
     for ( uint8_t i=0; i < 5; i++ ) { // Initialize the arrays
       this->order[i] = 0;
@@ -170,12 +173,10 @@ public:
 
   }
 
-  /* The setup method initializes the task. This method should be called once at the startup of the board.
-   * When the setup is successfull, the method returns 0, otherwise it returns an error number. The error numbers 
-   * should be documented in the concrete task that implements this setup.
-   *  
-   * @param None
-   * @return Zero is successfull and non-zero when an error occurred.
+  /**
+   * @brief Initialiseert de hardware pinnen en genereert de random volgorde.
+   * Wordt aangeroepen tijdens boot of reset van het spel.
+   * @return 0 bij succes.
    */
   uint8_t setup() {
     this->timer = 0;
@@ -201,10 +202,10 @@ public:
     return 0;
   }
 
-  /* Check whether wire number is already in the order array (wire 0 -> 4)
-   *  
-   * @param None
-   * @return True when found, otherwise false.
+  /**
+   * @brief Leest de actuele elektrische status van een specifieke draad.
+   * @param n Draadnummer (1-5).
+   * @return True als de draad verbonden is, false als deze onderbroken is.
    */
   bool stateWire (uint8_t n) {
     switch (n) {
@@ -227,10 +228,8 @@ public:
     return false;
   }
 
-  /* Print the state of the wires and the values of the wires.
-   *  
-   * @param None
-   * @return True when found, otherwise false.
+  /**
+   * @brief Debug functie om de status van alle draden naar de seriële poort te schrijven.
    */
   void printWires () {
     printf("Wires: \n");
@@ -239,12 +238,11 @@ public:
     }
   }
 
-  /* The loop method handles the main functionality. This loop method shall not contain any blocking function
-   * calls. If you require delays, please use timing variable millis. Using this strategy the CPU performance is
-   * maximized. If successfull the method returns 0, otherwise it returns an error number. The error numbers should be
-   * documented in the concrete task that implements this loop.
-   *  
-   * @param None
+  /**
+   * @brief Hoofd-loop voor de draden. Verzorgt softwarematige ontstoring en checkt op nieuwe onderbrekingen.
+   * Een draad wordt als "doorgeknipt" beschouwd als de accumulator boven de 128 uitkomt.
+   * 
+   * @param millis De huidige systeem-tijd in milliseconden.
    * @return Zero is successfull and non-zero when an error occurred.
    */
   uint8_t loop(uint64_t millis) {
@@ -286,41 +284,38 @@ public:
     return 0;
   }
 
-  /* Return the total wires that have been cut.
-   *  
-   * @param None
-   * @return Total wires that have been cut.
+  /**
+   * @brief Geeft het totaal aantal correct of foutief doorgeknipte draden terug.
+   * @return Aantal doorgeknipte draden.
    */
   uint8_t totalWiresCut() {
     uint8_t total = 0;
     for (uint8_t i=0; i < 5; i++ ) {
-      if ( this->orderCut != 0 ) {
+      if ( this->orderCut[i] != 0 ) {
         total++;
       }
     }
     return total;
   }
 
-  /* Returns the pointer to the char array containing the heximal code of the wire defusing order.
-   *  
-   * @param None
-   * @return char* to the heximal code.
+  /**
+   * @brief Geeft de gegenereerde deactivatiecode terug.
+   * @return Pointer naar de hex-string.
    */
   char* getCode() {
     return this->code;
   }
 
-  /* Return whether the user has won the game. Note that false does not mean the user has lost.
-   *  
-   * @param None
-   * @return True when won, otherwise false.
+  /**
+   * @brief Controleert of de gebruiker heeft gewonnen (alle draden door met max 1 fout).
+   * @return True als gewonnen.
    */
   bool isWin () { // one or zero mistakes
     return (this->totalWireCuts == 5 && this->totalMistakes < 2);
   }
 
-  /* Check whether the user has lost the game. Note that false does not mean the user has won.
-   *  
+  /**
+   * @brief Controleert of de gebruiker heeft verloren (te veel fouten).
    * @param None
    * @return True when lost, otherwise false.
    */

@@ -40,11 +40,9 @@
  */
 #include <Arduino.h>
 #include <math.h>
-
 #include <ESP8266WiFi.h>
 #include <ESP8266WebServer.h>
 #include <EEPROM.h>
-
 #include <driver.h>
 #include <website.hpp>
 #include <timer.hpp>
@@ -52,14 +50,13 @@
 #include <button.hpp>
 #include <wires.hpp>
 
-// Name of the device based on the ESP8622 chip ID used as SSID.
+/// @brief Unieke SSID gebaseerd op de Chip ID.
 String SSID = "HTB-" + String(system_get_chip_id());
 
-// Wi-Fi AP password and will be set later.
+/// @brief Wi-Fi wachtwoord (wordt geladen uit EEPROM of random gegenereerd).
 String PASSWORD = "";
 
 int channel = random(1, 13);
-
 uint8_t GAME_SELECTION = 0;
 
 // Forward declaration of the different routes for the webpages.
@@ -70,7 +67,7 @@ void handleNotFound();
 String webDefusingCode = "";
 uint8_t webDefusingCodeTrials = 0;
 
-// Instantiate the used drivers that handle the hardware appropiately.
+// Instantieer hardware drivers.
 Timer timer;
 Buzzer buzzer;
 Button button;
@@ -81,19 +78,21 @@ IDriver *drivers[] = { (IDriver*) &timer,
                        (IDriver*) &wires,
                      };
 
-// Instantiate the webserver to provide webpages to the user.
 ESP8266WebServer server(80);
 
-// Implementation of a very simple finite state machine (FSM) using an enumaration type.
+/**
+ * @enum MAIN_STATES
+ * @brief De staten van de hoofd-state machine van het spel.
+ */
 enum MAIN_STATES {
-  SELECT_GAME, // Game selection state
-  SELECT_TIME, // Time selection state
-  READY,       // Ready to start, game and time selected
-  GAME_1,        // Game is started
-  GAME_2,        // Game is started
-  WIN,         // The user won!
-  LOSE,        // The user lost!
-  END,         // End
+  SELECT_GAME, ///< De leraar kiest het speltype.
+  SELECT_TIME, ///< De leraar stelt de beschikbare tijd in.
+  READY,       ///< Systeem is klaar voor de start (wacht op knopdruk).
+  GAME_1,      ///< Game 1 (Draden) is actief.
+  GAME_2,      ///< Game 2 (Web hacking) is actief.
+  WIN,         ///< De bom is succesvol ontmanteld.
+  LOSE,        ///< De bom is afgegaan.
+  END,         ///< Einde van het spel, wacht op herstart.
 };
 
 // FSM state variable that indicate in which state we are in.
@@ -103,36 +102,36 @@ MAIN_STATES stateMain = SELECT_GAME;
 uint8_t totalTimeDefault = 50;
 
 /**
- * Setup that is used to execute the setup of the hardware and software before
- * the loop starts.
- *
- * @param None
- * @return None
+ * @brief Arduino Setup functie.
+ * Initialiseert Seriële poort, EEPROM (voor wachtwoord), drivers en de webserver.
  */
 void setup() {
-  Serial.begin(115200); // Setup the serial connection for debugging
+  Serial.begin(115200);
+  Serial.println("\nStarting HackTheBom Firmware...");
 
   /* Create a random number that will be used as Wi-Fi password. This number
    * will be stored in the EEPROM of the ESP8622.
    */ 
   EEPROM.begin(512);
-  if ( EEPROM.read(0) != 0x55 ) { // If the first byte is equal to 0x55, there is a number present.
-
+  if ( EEPROM.read(0) != 0x55 ) { 
+    // Geen wachtwoord gevonden, genereer een nieuwe van 20 cijfers.
+    PASSWORD.reserve(20); 
     for ( uint8_t i=0; i < 20; i++ ) { // Create a random password
       uint8_t r = random(0, 10);
-      PASSWORD = PASSWORD + String(r);
+      PASSWORD += String(r);
       EEPROM.write(i+1, r); // Store it in the EEPROM
     }
     EEPROM.write(0, 0x55); // Everything is stored, so set the first byte to 0x55
     EEPROM.commit();
 
   } else {
+    PASSWORD.reserve(20);
     for ( uint8_t i=0; i < 20; i++ ) {
-      PASSWORD = PASSWORD + String(EEPROM.read(i+1)); // Read the value from the EEPROM
+      PASSWORD += String(EEPROM.read(i+1));
     }
   }
 
-  // Setup the drivers that are active.
+  // Start alle hardware drivers.
   for ( IDriver *driver: drivers ) {
       driver->setup();
   }
@@ -154,7 +153,6 @@ void setup() {
   // First state is blinking and show the default time.
   timer.blink(true);
   timer.showGameSelection(GAME_SELECTION+1);
-//  timer.showTime(totalTimeDefault, 0);
 
   // Test the buzzer!
   buzzer.beep();
@@ -164,11 +162,8 @@ void setup() {
 }
 
 /**
- * The loop is called continously. Make sure no blocking functions are implemented
- * by the different modules, drivers and other code.
- *
- * @param None
- * @return None
+ * @brief Arduino Loop functie.
+ * Verwerkt driver updates en beheert de hoofd-state machine (FSM) zonder blocking code.
  */
 void loop() {
   for ( IDriver *driver: drivers ) { // Call the loop functions of the drivers.
@@ -178,15 +173,13 @@ void loop() {
   // Implementation of the FSM by using a switch statement.
   switch (stateMain) {
     case SELECT_GAME:
-      if ( button.isPressed() ) {
+      if ( button.isPressed() ) { // Wissel tussen Game 1 en Game 2
         GAME_SELECTION = (GAME_SELECTION+1) % 2;
         timer.showGameSelection(GAME_SELECTION+1);
         printf("GAME: %d\n", GAME_SELECTION);
       }
 
-      if ( button.isLongPressed() ) {
-        GAME_SELECTION = GAME_SELECTION-1; // Always one back due to button press
-        GAME_SELECTION = GAME_SELECTION % 2;
+      if ( button.isLongPressed() ) { // Bevestig game keuze
         timer.showTime(totalTimeDefault, 0);
         stateMain = SELECT_TIME;
         buzzer.beep();
@@ -194,13 +187,12 @@ void loop() {
     break;
 
     case SELECT_TIME:
-      if ( button.isPressed() ) {
+      if ( button.isPressed() ) { // Verhoog tijd in stappen van 5 minuten
         totalTimeDefault = (totalTimeDefault + 5) % 100;
         timer.showTime(totalTimeDefault, 0);
       }
 
-      if ( button.isLongPressed() ) {
-        totalTimeDefault = (totalTimeDefault - 5) % 100; // Always an extra press - simple solution to fix.
+      if ( button.isLongPressed() ) { // Bevestig tijd
         timer.showTime(totalTimeDefault, 0);
         stateMain = READY;
         timer.blink(false);
@@ -209,7 +201,7 @@ void loop() {
     break;
 
     case READY:
-      if ( button.isPressed() ) { 
+      if ( button.isPressed() ) { // START HET SPEL
         stateMain = GAME_1; // Default
         timer.enterCountdown(totalTimeDefault);
         buzzer.startTicking();
@@ -227,12 +219,12 @@ void loop() {
       }
     break;
 
-    case GAME_1: // Minor Game with wires
+    case GAME_1: // Draden spel (Minor Game)
      if ( wires.isWin() ) {
       stateMain = WIN;
       buzzer.startWin();
      }
-    if ( timer.isTimerZero() || wires.isLose() ) {
+    if ( timer.isTimerZero() || wires.isLose() ) { // Tijd op of te veel fouten
       stateMain = LOSE;
       buzzer.startLose();
      }
@@ -261,10 +253,10 @@ void loop() {
     break;
 
     case END:
-      static uint32_t timer = millis();
-      if ( timer != 0 && millis() - timer > 20000 ) {
+      static uint32_t end_timer = millis();
+      if ( end_timer != 0 && millis() - end_timer > 20000 ) {
         buzzer.mute();
-        timer = 0;
+        end_timer = 0;
       }
       // Do nothing, so the device needs to be restarted.
     break;
