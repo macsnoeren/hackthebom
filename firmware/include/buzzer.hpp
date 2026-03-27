@@ -15,10 +15,11 @@
  * @file       : inclue/buzzer.cpp
  * @author     : Maurice Snoeren (MS)
  * @description: This file implements the driver for the buzzer. 
- * @date       : 16-06-2024
- * @version    : 1.0
+ * @date       : 27-03-2026
+ * @version    : 1.1
  * @updates    : 20-02-2024 (MS): Initial code.
  *               16-06-2024 (MS): Created the first release version.
+ *               27-03-2026 (MS): Improved code and documentation.
  * @todo       : - Write a music engine to play music
  */
 #include <driver.h>

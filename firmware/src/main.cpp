@@ -30,15 +30,15 @@
  *                 Wire connections: - A0 --- 3V3
  *                                   - D0 --- GND (external pull-up 100K to 3V3)
  *                                   - D5/D6/D7 --- GND (select internal pull-up)
- * @date       : 22-09-2024
- * @version    : 1.1
+ * @date       : 27-03-2026
+ * @version    : 1.2
  * @updates    : 20-02-2024 (MS): Initial code.
  *               16-06-2024 (MS): Created the first release version.
  *               22-09-2024 (MS): Added Game 2 for the first year students including game selection.
+ *               27-03-2026 (MS): Improved code and documentation.
  * @todo       : 
  */
 #include <Arduino.h>
-//#include <String.h>
 #include <math.h>
 
 #include <ESP8266WiFi.h>

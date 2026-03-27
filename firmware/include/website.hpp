@@ -15,9 +15,10 @@
  * @file       : include/website.cpp
  * @author     : Maurice Snoeren (MS)
  * @description: 
- * @date       : 16-06-2024
- * @version    : 1.0
+ * @date       : 27-03-2026
+ * @version    : 1.1
  * @updates    : 20-02-2024 (MS): Initial code.
+ *               27-03-2026 (MS): Improved code and documentation.
  * @todo       : 
  */
 

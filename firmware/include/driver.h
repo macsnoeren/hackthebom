@@ -17,9 +17,11 @@
  * @description: The abstract base class for tasks runned by the SmartSensor board. All tasks should use this class. This file
  *               uses the design approach that starts with interfaces that will be implemented by abstract and concrete classes.
  *               This method provides the interface IDriver.
- * @date       : 24-10-2021
- * @version    : 1.0
+ * @date       : 27-03-2026
+ * @version    : 1.1
  * @updates    : 24-10-2021: Initial code.
+ *               27-03-2026 (MS): Improved code and documentation.
+
  * @todo       : 
  */
 #include <inttypes.h>

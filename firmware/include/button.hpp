@@ -15,10 +15,11 @@
  * @file       : inclue/button.cpp
  * @author     : Maurice Snoeren (MS)
  * @description: This file implements the driver for the button. 
- * @date       : 16-06-2024
- * @version    : 1.0
+ * @date       : 27-03-2025
+ * @version    : 1.1
  * @updates    : 20-02-2024 (MS): Initial code.
  *               16-06-2024 (MS): Created the first release version.
+ *               27-03-2026 (MS): Fixed button long press bug!
  * @todo       : 
  */
 #include <driver.h>
