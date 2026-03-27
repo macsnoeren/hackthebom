@@ -32,14 +32,16 @@
 class Button: public IDriver {
 private:
    uint64_t timer;
-   uint8_t value;
+   uint8_t value;           ///< Accumulator voor softwarematige ontstoring (debounce).
 
-   bool pressed;
-   bool longPressed;
-   bool longPressedRead;
+   bool pressed;            ///< Is de knop momenteel debounced ingedrukt?
+   bool longPressed;        ///< Signaal dat een long press is gedetecteerd.
+   bool longPressedRead;    ///< Voorkomt dat een long press meerdere keren afgaat tijdens één keer inhouden.
+   bool shortPressPending;  ///< Signaal dat er een korte klik is geweest (geactiveerd bij loslaten).
 
 public:
-    Button(): timer(0), value(0), longPressed(false), longPressedRead(false) {
+    Button(): timer(0), value(0), pressed(false), longPressed(false), 
+              longPressedRead(false), shortPressPending(false) {
 
     }
 
@@ -82,12 +84,29 @@ public:
          }
       }
 
-      if ( this->pressed ) {
-         if ( millis - this->timer > 5000 ) {
-            this->longPressed = true;
-         }
-      } else {
+      bool currentDebouncedState = (this->value > 128);
+
+      if (currentDebouncedState && !this->pressed) {
+         // Knop wordt net ingedrukt (Down-event)
+         this->pressed = true;
          this->timer = millis;
+         this->longPressed = false;
+         this->longPressedRead = false;
+      } 
+      else if (currentDebouncedState && this->pressed) {
+         // Knop wordt vastgehouden
+         if (!this->longPressedRead && (millis - this->timer > 2000)) { // 2 seconden drempel
+            this->longPressed = true;
+            this->longPressedRead = true; // Markeer als afgehandeld voor deze sessie
+         }
+      }
+      else if (!currentDebouncedState && this->pressed) {
+         // Knop wordt losgelaten (Up-event)
+         if (!this->longPressedRead) {
+            // Alleen een korte klik als het geen long-press was
+            this->shortPressPending = true;
+         }
+         this->pressed = false;
       }
 
        return 0;
@@ -102,21 +121,11 @@ public:
       return digitalRead(D3) == LOW;
    }
 
-   /* Implements the pressing logics (anti-dender). Returns true when the button is really pressed.
-    *  
-    * @param None
-    * @return True when really pressed, otherwise false.
-    */
    bool isPressed() {
-      if ( this->value > 128 && !this->pressed ) {
-         this->pressed = true;
+      if (this->shortPressPending) {
+         this->shortPressPending = false;
          return true;
       }
-
-      if ( this->value < 128 && this->pressed ) {
-         this->pressed = false;
-      }
-
       return false;
    }
 
@@ -126,16 +135,10 @@ public:
     * @return True when long pressed, otherwise false.
     */
    bool isLongPressed() {
-      if ( this->longPressed && !this->longPressedRead ) {
-         this->longPressedRead = true;
+      if ( this->longPressed ) {
+         this->longPressed = false;
          return true;
       }
-
-      if ( !this->pressed && this->longPressedRead ) {
-         this->longPressed = false;
-         this->longPressedRead = false;
-      }
-
       return false;
    }
 
