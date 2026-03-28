@@ -287,17 +287,10 @@ void loop() {
  * @return None
  */
 void handleRoot() {
-  File file;
-  if (GAME_SELECTION == 1) {
-    file = LittleFS.open("/game02.html", "r");
-    if (server.hasArg("code")) {
-      String code = server.arg("code");
-      game02.handleWebCode(code);
-    }
-  } else {
-    file = LittleFS.open("/game01.html", "r");
-  }
-  
+  char filename[30];
+  sprintf(filename, "/game%02d.html", GAME_SELECTION + 1);
+
+  File file = LittleFS.open(filename, "r");  
   if (file) {
     server.streamFile(file, "text/html");
     file.close();
@@ -313,7 +306,10 @@ void handleRoot() {
  * @return None
  */
 void handleAdmin() {
-  File file = LittleFS.open("/game01-admin.html", "r");
+  char filename[30];
+  sprintf(filename, "/game%02d-admin.html", GAME_SELECTION + 1);
+
+  File file = LittleFS.open(filename, "r");  
   if (file) {
     server.streamFile(file, "text/html");
     file.close();
@@ -329,16 +325,19 @@ void handleAdmin() {
  * @return None
  */
 void handleCode() {
-  File file = LittleFS.open("/game01-code.html", "r");
+  char filename[30];
+  sprintf(filename, "/game%02d-code.html", GAME_SELECTION + 1);
+
+  File file = LittleFS.open(filename, "r");  
   if (file) {
     String content = file.readString();
     file.close();
     
-    // Vervang de printf-style formatters door de echte waarden
-    // Let op: in code.html moet je dan placeholders gebruiken zoals {0} of %s
-    char buffer[1024];
-    snprintf(buffer, sizeof(buffer), content.c_str(), SSID.c_str(), wires.getCode());
-    server.send(200, "text/html", buffer);
+    // Vervang de placeholders door de actuele waarden
+    content.replace("{SSID}", SSID);
+    content.replace("{CODE}", String(wires.getCode()));
+
+    server.send(200, "text/html", content);
   } else {
     handleNotFound();
   }
@@ -359,6 +358,7 @@ void handleStatus() {
   json += "\"win\":" + String(win ? "true" : "false") + ",";
   json += "\"lose\":" + String(lose ? "true" : "false");
   json += "}";
+  
   server.send(200, "application/json", json);
 }
 
