@@ -1,0 +1,90 @@
+<!DOCTYPE html>
+<html>
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>HTB — DEACTIVATION KEY</title>
+    <style>
+        :root {
+            --bg:       #060809;
+            --bg-panel: #0a0f0d;
+            --border:   #1a2e20;
+            --red:      #ff2233;
+            --green:    #00ff88;
+            --mono: 'Courier New', monospace;
+        }
+
+        body {
+            background: var(--bg);
+            color: var(--green);
+            font-family: var(--mono);
+            margin: 0;
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            height: 100vh;
+            overflow: hidden;
+        }
+
+        body::after {
+            content: '';
+            position: fixed;
+            inset: 0;
+            background: repeating-linear-gradient(0deg, transparent, transparent 3px, rgba(0,0,0,0.08) 3px, rgba(0,0,0,0.08) 4px);
+            pointer-events: none;
+        }
+
+        .terminal {
+            border: 1px solid var(--green);
+            background: var(--bg-panel);
+            padding: 40px;
+            position: relative;
+            max-width: 400px;
+            width: 90%;
+            text-align: center;
+            box-shadow: 0 0 30px rgba(0,255,136,0.05);
+        }
+
+        .terminal::before {
+            content: 'DEACTIVATION ENCRYPTION KEY';
+            position: absolute;
+            top: -10px;
+            left: 20px;
+            background: var(--bg);
+            padding: 0 10px;
+            font-size: 10px;
+            letter-spacing: 0.1em;
+        }
+
+        .code-display {
+            font-size: 72px;
+            font-weight: bold;
+            letter-spacing: 12px;
+            text-shadow: 0 0 20px var(--green);
+            margin: 20px 0;
+        }
+
+        .timer-sync { margin-top: 40px; color: var(--red); font-size: 18px; letter-spacing: 0.2em; }
+    </style>
+</head>
+<body>
+<div class="terminal">
+    <div style="font-size: 11px; color: #008844; margin-bottom: 30px;">UNIQUE ID: %s</div>
+    <div class="code-display">%.4s</div>
+    <div class="timer-sync" id="timer">00:00</div>
+</div>
+<script>
+    async function sync() {
+        try {
+            const res = await fetch('/status');
+            const data = await res.json();
+            const m = Math.floor(data.time / 60);
+            const s = data.time % 60;
+            document.getElementById('timer').textContent = String(m).padStart(2, '0') + ":" + String(s).padStart(2, '0');
+        } catch(e) {}
+    }
+    setInterval(sync, 2000);
+    sync();
+</script>
+</body>
+</html>
