@@ -43,12 +43,14 @@
 #include <ESP8266WiFi.h>
 #include <ESP8266WebServer.h>
 #include <EEPROM.h>
+#include <LittleFS.h>
 #include <driver.h>
-#include <website.hpp>
 #include <timer.hpp>
 #include <buzzer.hpp>
 #include <button.hpp>
 #include <wires.hpp>
+#include <game_01.hpp>
+#include <game_02.hpp>
 
 /// @brief Unieke SSID gebaseerd op de Chip ID.
 String SSID = "HTB-" + String(system_get_chip_id());
@@ -63,20 +65,26 @@ uint8_t GAME_SELECTION = 0;
 void handleRoot();
 void handleAdmin();
 void handleCode();
+void handleStatus();
 void handleNotFound();
-String webDefusingCode = "";
-uint8_t webDefusingCodeTrials = 0;
 
 // Instantieer hardware drivers.
 Timer timer;
 Buzzer buzzer;
 Button button;
 Wires wires(&buzzer);
+Game01 game01(&timer, &buzzer, &wires);
+Game02 game02(&timer, &buzzer);
+
 IDriver *drivers[] = { (IDriver*) &timer,
                        (IDriver*) &buzzer,
                        (IDriver*) &button,
                        (IDriver*) &wires,
                      };
+
+IDriver *games[] = { (IDriver*) &game01,
+                     (IDriver*) &game02,
+                   };
 
 ESP8266WebServer server(80);
 
@@ -108,6 +116,11 @@ uint8_t totalTimeDefault = 50;
 void setup() {
   Serial.begin(115200);
   Serial.println("\nStarting HackTheBom Firmware...");
+
+  // Start het bestandssysteem
+  if (!LittleFS.begin()) {
+    Serial.println("LittleFS mount failed");
+  }
 
   /* Create a random number that will be used as Wi-Fi password. This number
    * will be stored in the EEPROM of the ESP8622.
@@ -147,6 +160,7 @@ void setup() {
   server.on("/", handleRoot);
   server.on("/admin", handleAdmin);
   server.on("/code", handleCode);
+  server.on("/status", handleStatus);
   server.onNotFound(handleNotFound);
   server.begin();
 
@@ -202,43 +216,40 @@ void loop() {
 
     case READY:
       if ( button.isPressed() ) { // START HET SPEL
-        stateMain = GAME_1; // Default
-        timer.enterCountdown(totalTimeDefault);
-        buzzer.startTicking();
-        wires.setup(); // Reset the game
-
-        // Print the name of the device and the password.
-        printf("%s / %s\n", SSID.c_str(), PASSWORD.c_str());
-        printf("GAME: %d\n", GAME_SELECTION+1);
-
-        if ( GAME_SELECTION == 0 ) { stateMain = GAME_1; }
+        if ( GAME_SELECTION == 0 ) { 
+          stateMain = GAME_1; 
+          game01.start(totalTimeDefault);
+        }
         if ( GAME_SELECTION == 1 ) { 
           WiFi.softAP(SSID, "h4cKTh!5", channel, 0, 1); // Reset it to a fixed password for game 2 wi-fi
           stateMain = GAME_2;
+          game02.start(totalTimeDefault);
         }
+        // Print the name of the device and the password.
+        printf("%s / %s\n", SSID.c_str(), PASSWORD.c_str());
+        printf("GAME: %d\n", GAME_SELECTION+1);
       }
     break;
 
     case GAME_1: // Draden spel (Minor Game)
-     if ( wires.isWin() ) {
-      stateMain = WIN;
-      buzzer.startWin();
+     if ( game01.isWin() ) {
+        stateMain = WIN;
+        buzzer.startWin();
      }
-    if ( timer.isTimerZero() || wires.isLose() ) { // Tijd op of te veel fouten
-      stateMain = LOSE;
-      buzzer.startLose();
+     if ( game01.isLose() ) { // Tijd op of te veel fouten
+        stateMain = LOSE;
+        buzzer.startLose();
      }
     break;
 
     case GAME_2: // Introduction, year 1 Game
-    if ( webDefusingCode.equals("BC84") ) { // Hardcoded!
-      stateMain = WIN;
-      buzzer.startWin();
+    if ( game02.isWin() ) {
+        stateMain = WIN;
+        buzzer.startWin();
     }
-
-    if ( timer.isTimerZero() || webDefusingCodeTrials > 3) {
-      stateMain = LOSE;
-      buzzer.startLose();
+    if ( game02.isLose() ) {
+        stateMain = LOSE;
+        buzzer.startLose();
      }
     break;
 
@@ -276,19 +287,22 @@ void loop() {
  * @return None
  */
 void handleRoot() {
-  if ( GAME_SELECTION == 1 ) {
-    server.send(200, "text/html", index_html_2);
-    webDefusingCode = server.arg("code");
-    if ( !webDefusingCode.equals("") ) {
-      webDefusingCodeTrials++;
-      if ( webDefusingCodeTrials > 0 ) {
-        buzzer.startTicking(300); // double speed
-      }
+  File file;
+  if (GAME_SELECTION == 1) {
+    file = LittleFS.open("/game02.html", "r");
+    if (server.hasArg("code")) {
+      String code = server.arg("code");
+      game02.handleWebCode(code);
     }
-    printf("webDefusingCode: %s\n", webDefusingCode.c_str());
-
-  } else { // Default Game 1
-    server.send(200, "text/html", index_html);
+  } else {
+    file = LittleFS.open("/game01.html", "r");
+  }
+  
+  if (file) {
+    server.streamFile(file, "text/html");
+    file.close();
+  } else {
+    server.send(404, "text/plain", "File not found");
   }
 }
 
@@ -299,7 +313,13 @@ void handleRoot() {
  * @return None
  */
 void handleAdmin() {
-  server.send(200, "text/html", admin_html);
+  File file = LittleFS.open("/game01-admin.html", "r");
+  if (file) {
+    server.streamFile(file, "text/html");
+    file.close();
+  } else {
+    handleNotFound();
+  }
 }
 
 /**
@@ -309,9 +329,37 @@ void handleAdmin() {
  * @return None
  */
 void handleCode() {
-  char html[1000];
-  snprintf(html, sizeof(html), code_html, SSID.c_str(), wires.getCode());
-  server.send(200, "text/html", html);
+  File file = LittleFS.open("/game01-code.html", "r");
+  if (file) {
+    String content = file.readString();
+    file.close();
+    
+    // Vervang de printf-style formatters door de echte waarden
+    // Let op: in code.html moet je dan placeholders gebruiken zoals {0} of %s
+    char buffer[1024];
+    snprintf(buffer, sizeof(buffer), content.c_str(), SSID.c_str(), wires.getCode());
+    server.send(200, "text/html", buffer);
+  } else {
+    handleNotFound();
+  }
+}
+
+/**
+ * Handles the status request to sync time and game state.
+ */
+void handleStatus() {
+  bool win = (GAME_SELECTION == 0) ? game01.isWin() : game02.isWin();
+  bool lose = (GAME_SELECTION == 0) ? game01.isLose() : game02.isLose();
+  
+  // Zorg dat je Timer klasse de methode getRemainingSeconds() implementeert
+  int remaining = timer.getRemainingSeconds();
+
+  String json = "{";
+  json += "\"time\":" + String(remaining) + ",";
+  json += "\"win\":" + String(win ? "true" : "false") + ",";
+  json += "\"lose\":" + String(lose ? "true" : "false");
+  json += "}";
+  server.send(200, "application/json", json);
 }
 
 /**

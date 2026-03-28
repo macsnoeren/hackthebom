@@ -123,6 +123,14 @@ public:
       return this->minutes == 0 && this->seconds == 0;
    }
 
+   /**
+    * Geeft het totaal aantal resterende seconden terug.
+    * @return Resterende seconden.
+    */
+   uint32_t getRemainingSeconds() {
+      return (this->minutes * 60) + this->seconds;
+   }
+
    /* Show LOSE on the display.
     *  
     * @param None
