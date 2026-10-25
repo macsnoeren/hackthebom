@@ -1,0 +1,351 @@
+<!DOCTYPE html>
+<html lang="nl">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>htb.jmnl.nl - Handleiding DIY Bom</title>
+    <style>
+        body {
+            background-color: #121212;
+            color: #e0e0e0;
+            font-family: 'Arial', sans-serif;
+            line-height: 1.6;
+            padding: 20px;
+        }
+        h1, h2, h3, h4 {
+            color: #bb86fc;
+        }
+        a {
+            color: #03dac6;
+        }
+        code {
+            background-color: #333;
+            padding: 2px 4px;
+            border-radius: 4px;
+        }
+        pre {
+            background-color: #333;
+            padding: 10px;
+            border-radius: 8px;
+            overflow-x: auto;
+        }
+        .container {
+            max-width: 800px;
+            margin: auto;
+        }
+    </style>
+</head>
+<body>
+    <div class="container">
+        <p>versie: 0.1, 18 June 2024</p>
+
+<h1>Handleiding voor de Constructie van de DIY Bom</h1>
+
+<h2>Een Inleiding tot de Constructie van Je Meesterwerk</h2>
+
+<p>Gefeliciteerd, meesterbouwer, en welkom bij de ultieme handleiding voor het samenstellen van de DIY Bom! Je staat op het punt om een indrukwekkende uitdaging te creëren die zelfs de meest doorgewinterde puzzelaars op de proef zal stellen. Dit is jouw kans om een meesterwerk te bouwen dat vaardigheid, intelligentie en zenuwen van staal vereist om te ontrafelen. Deze handleiding biedt je een uitgebreide stap-voor-stap gids om jouw visie tot leven te brengen.</p>
+
+<h3>Veiligheidsrichtlijnen</h3>
+
+<p>Bij het bouwen van elk elektronisch apparaat is veiligheid van het grootste belang. Voordat je begint, zorg ervoor dat je de volgende veiligheidsmaatregelen begrijpt en volgt:</p>
+
+<ul>
+<li><strong>Draag altijd beschermende uitrusting</strong>, zoals veiligheidsbrillen en hittebestendige handschoenen.</li>
+<li>Werk in een goed geventileerde ruimte om mogelijke rook of chemische dampen te vermijden.</li>
+<li><strong>Houd gereedschap en onderdelen georganiseerd</strong> om verwondingen of fouten tijdens de bouw te voorkomen.</li>
+</ul>
+
+<p>Zorg ervoor dat je vertrouwd bent met de basis van solderen, elektrische bedrading en het veilig hanteren van elektronica voordat je aan dit project begint.</p>
+
+<hr />
+
+<h3>De Essentie van de Bom</h3>
+
+<p>Deze bom is niet zomaar een explosief; het is een ingenieus stukje techniek dat spanning en uitdaging biedt. Hij bestaat uit twee decoratieve TNT-staven en een geavanceerde computer uitgerust met een ESP8622 microcontroller, een display, een buzzer en een knop. Elk onderdeel is zorgvuldig geselecteerd om de ervaring zo realistisch en intens mogelijk te maken.</p>
+
+<h4>TNT-staven: De Illusie van Gevaar</h4>
+
+<p>Onze TNT-staven zijn ontworpen om een authentieke en angstaanjagende uitstraling te geven, zonder het echte gevaar van explosieven. Deze staven dienen als een krachtig symbool van de urgentie en het risico van de situatie.</p>
+
+<h4>De Computer: Het Brein van de Operatie</h4>
+
+<p>De kern van jouw creatie is de computer, aangedreven door een ESP8622 microcontroller. Deze kleine maar krachtige chip zorgt voor de aansturing van alle onderdelen, waardoor je een naadloze en uitdagende ervaring kunt bieden.</p>
+
+<h4>Het Display: De Leidsman van de Uitdaging</h4>
+
+<p>Het display is je communicatiemiddel met de deelnemers, waarop je de resterende tijd, aanwijzingen en hints kunt tonen. Dit scherm is cruciaal voor het begeleiden van de spelers door de verschillende fasen van de deactivatie.</p>
+
+<h4>De Buzzer: De Stem van Waarschuwing</h4>
+
+<p>De buzzer is jouw alarmklok, ontworpen om de spelers te waarschuwen bij fouten of naderende tijdslimieten. Dit element verhoogt de spanning en zorgt ervoor dat elke seconde telt.</p>
+
+<h4>De Knop: De Beslissende Trigger</h4>
+
+<p>De knop is de interface waarmee de deelnemers acties kunnen uitvoeren en codes kunnen invoeren. Het simpele ontwerp maakt het een intuïtieve maar kritische component van jouw bom.</p>
+
+<h3>Het Grote Doel: Een Onvergetelijke Ervaring Creëren</h3>
+
+<p>Het doel van deze constructie is om een scenario te creëren waarin de spelers de bom moeten deactiveren voordat de tijd om is. Dit vereist een zorgvuldige balans tussen uitdaging en haalbaarheid, waardoor de ervaring spannend maar niet onmogelijk wordt.</p>
+
+<h4>Een Reis naar de Top</h4>
+
+<p>Door deze bom in elkaar te zetten, creëer je niet alleen een fysiek object, maar ook een ervaring die deelnemers zich nog lang zullen herinneren. Dit is jouw kans om een blijvende indruk te maken met jouw vakmanschap en creativiteit.</p>
+
+<h3>Voorbereidingen: Wat Je Nodig Hebt</h3>
+
+<p>Voordat je begint, zorg ervoor dat je alle benodigde materialen en gereedschappen bij de hand hebt. Dit omvat:</p>
+
+<ul>
+<li>Twee decoratieve TNT-staven</li>
+<li>Een computer met een ESP8622 microcontroller</li>
+<li>Een display</li>
+<li>Een buzzer</li>
+<li>Een drukknop</li>
+<li>Draden en verbindingsmateriaal</li>
+<li>Gereedschappen zoals een soldeerbout, schroevendraaiers en tangetjes</li>
+</ul>
+
+<hr />
+
+<h2>Gedetailleerde Constructie-Instructies</h2>
+
+<p>Hier volgen de stapsgewijze instructies om jouw DIY Bom samen te stellen. Volg deze nauwkeurig om ervoor te zorgen dat alles correct functioneert.</p>
+
+<h3>Stap 1: Voorbereiding van de TNT-staven</h3>
+
+<p>Plaats de decoratieve TNT-staven in de behuizing van de bom. Zorg ervoor dat ze stevig vastzitten en niet gemakkelijk kunnen verschuiven.</p>
+
+<h3>Stap 2: Installatie van de Computer</h3>
+
+<p>Monteer de ESP8622 microcontroller in de behuizing. Verbind de microcontroller met de stroomvoorziening en zorg voor een stabiele verbinding.</p>
+
+<h3>Stap 3: Aansluiten van het Display</h3>
+
+<p>Sluit het display aan op de microcontroller. Controleer of het display correct werkt door een testbericht weer te geven.</p>
+
+<h3>Stap 4: Bevestiging van de Buzzer</h3>
+
+<p>Installeer de buzzer in de behuizing en verbind deze met de microcontroller. Test de buzzer om te verzekeren dat hij geluidssignalen kan afgeven.</p>
+
+<h3>Stap 5: Plaatsen van de Knop</h3>
+
+<p>Monteer de knop op een toegankelijke plaats op de behuizing en sluit deze aan op de microcontroller. Zorg ervoor dat de knop correct reageert op input.</p>
+
+<h3>Stap 6: Programmering van de Microcontroller</h3>
+
+<p>Programmeur de ESP8622 met de benodigde software om de werking van de bom te coördineren. Dit omvat het instellen van de timer, het weergeven van aanwijzingen op het display, en het activeren van de buzzer bij fouten of tijdslimieten.</p>
+
+<h3>Stap 7: Eindcontrole en Testen</h3>
+
+<p>Voer een uitgebreide test uit om ervoor te zorgen dat alle componenten correct functioneren. Test de timer, de display-aanwijzingen, de buzzer-waarschuwingen en de knoprespons. Maak eventuele noodzakelijke aanpassingen.</p>
+
+<hr />
+
+<h2>Problemen Oplossen</h2>
+
+<p>Tijdens het bouwen kun je enkele veelvoorkomende problemen tegenkomen:</p>
+
+<h3>1. Geen stroom</h3>
+
+<p>Als het apparaat niet opstart, controleer dan eerst of alle verbindingen goed zijn. Controleer of de microcontroller goed is aangesloten en probeer een andere voedingsbron.</p>
+
+<h3>2. Buzzer werkt niet</h3>
+
+<p>Als de buzzer geen geluid maakt, controleer dan de code en bedrading. Zorg ervoor dat de buzzer op de juiste pin van de microcontroller is aangesloten.</p>
+
+<h3>3. Display geeft niets weer</h3>
+
+<p>Het display kan soms niet reageren als de bedrading niet goed is gesoldeerd. Dubbelcheck de verbindingen en probeer een andere bibliotheek in de Arduino IDE te gebruiken.</p>
+
+<hr />
+
+<h2>Design en Aanpassingen</h2>
+
+<p>Nu je de basis hebt voltooid, kun je het uiterlijk van je bom aanpassen. Overweeg:</p>
+
+<ul>
+<li><strong>Verf en decoratie</strong>: Verf de TNT-staven in andere kleuren of voeg stickers toe voor een persoonlijk tintje.</li>
+<li><strong>Lichtgevende elementen</strong>: Voeg LED-verlichting toe om het geheel spectaculairder te maken.</li>
+<li><strong>Geluiden aanpassen</strong>: Programmeer de buzzer met verschillende geluiden voor een intensere ervaring.</li>
+</ul>
+
+<hr />
+
+<h1>Hoofdstuk: Denk Twee Keer Na Voordat Je Deze Bom Gebruikt</h1>
+
+<h2>Een Stap Terug en Overwegen</h2>
+
+<p>Voordat je jouw zorgvuldig samengestelde Escape Room Bom Deactivatie Challenge in gebruik neemt, is het belangrijk om even stil te staan en goed na te denken over wat je gaat doen. Hoewel je misschien niet daadwerkelijk met een explosief werkt, creëer je wel een intense en spannende ervaring voor de deelnemers. Dit vereist verantwoordelijkheid, zorgvuldigheid en een goed begrip van de impact die jouw meesterwerk kan hebben.</p>
+
+<h3>Het Grote Geheel</h3>
+
+<p>Stel jezelf een paar belangrijke vragen voordat je de bom activeert:</p>
+
+<ol>
+<li><p><strong>Zijn Alle Veiligheidsmaatregelen op Hun Plaats?</strong></p>
+
+<ul>
+<li>Heb je alle stappen in deze handleiding nauwkeurig gevolgd?</li>
+<li>Zijn alle componenten goed bevestigd en veilig?</li>
+<li>Is de admin-pagina beveiligd met een sterk wachtwoord?</li>
+</ul></li>
+<li><p><strong>Zijn de Deelnemers Voorbereid?</strong></p>
+
+<ul>
+<li>Heb je de deelnemers voldoende geïnformeerd over de uitdaging die hen te wachten staat?</li>
+<li>Zijn er duidelijke instructies en noodprocedures beschikbaar voor het geval iets misgaat?</li>
+<li>Zijn de deelnemers zich bewust van de intensiteit en de spanning van de uitdaging?</li>
+</ul></li>
+<li><p><strong>Is de Locatie Geschikt?</strong></p>
+
+<ul>
+<li>Heb je de ruimte goed gecontroleerd om ervoor te zorgen dat er geen ongelukken kunnen gebeuren?</li>
+<li>Zijn er geen gevaarlijke voorwerpen of omstandigheden die de veiligheid van de deelnemers kunnen bedreigen?</li>
+</ul></li>
+</ol>
+
+<h3>Het Verhaal van Erik en de Grote Ontploffing</h3>
+
+<p>Laten we even teruggaan in de tijd, naar een kleine stad waar een enthousiaste puzzelmaker genaamd Erik zijn eerste escape room bom had gecreëerd. Erik was zo opgewonden over zijn project dat hij vergat een paar cruciale veiligheidsmaatregelen te nemen. Hij had de draden niet goed getest en de admin-pagina was onbeveiligd. Op de grote dag, tijdens de allereerste poging van een groep deelnemers, ging alles mis.</p>
+
+<p>De eerste deelnemer trok vol vertrouwen de verkeerde draad, maar in plaats van een waarschuwing, begon de buzzer meteen te piepen en het display flitste chaotisch. Erik had de foutmarge verkeerd geprogrammeerd, waardoor er geen ruimte was voor vergissingen. De deelnemers raakten in paniek, en hoewel er geen echte explosie was, zorgde de chaos voor een paar flinke hartkloppingen en een beschadigde reputatie voor Erik.</p>
+
+<p>Gelukkig leerde Erik snel van zijn fouten. Hij nam een stap terug, herlas zijn handleiding, verbeterde zijn ontwerp en zorgde ervoor dat alle veiligheidsmaatregelen op hun plaats waren voordat hij de bom opnieuw gebruikte. De tweede poging was een groot succes en Erik's escape room werd al snel de populairste in de stad.</p>
+
+<h3>Jouw Tijd om te Schitteren</h3>
+
+<p>Net zoals Erik, heb jij nu de kans om van jouw creatie een onvergetelijke ervaring te maken. Neem de tijd om alles goed na te lopen, zorg ervoor dat je niets over het hoofd ziet en dat je volledig voorbereid bent.</p>
+
+<h3>Checklijst voor Succes</h3>
+
+<p>Voor je de bom activeert, doorloop deze korte checklijst:</p>
+
+<ul>
+<li><p><strong>Veiligheidsmaatregelen</strong></p>
+
+<ul>
+<li>Alle componenten stevig vastgezet</li>
+<li>Admin-pagina beveiligd met wachtwoord</li>
+<li>Noodprocedures klaar en beschikbaar</li>
+</ul></li>
+<li><p><strong>Deelnemersinformatie</strong></p>
+
+<ul>
+<li>Duidelijke instructies gegeven</li>
+<li>Bewust van intensiteit en risico's</li>
+<li>Gereed voor de uitdaging</li>
+</ul></li>
+<li><p><strong>Locatie</strong></p>
+
+<ul>
+<li>Geen gevaarlijke omstandigheden</li>
+<li>Veilig en gecontroleerd</li>
+</ul></li>
+</ul>
+
+<h3>Conclusie</h3>
+
+<p>Onthoud dat het creëren van een escape room bom niet alleen draait om het technische aspect, maar ook om het bieden van een veilige, uitdagende en onvergetelijke ervaring. Neem de tijd, wees grondig, en geniet van het proces. Je meesterwerk zal niet alleen een spannende uitdaging zijn voor de deelnemers, maar ook een bewijs van jouw vakmanschap en aandacht voor detail.</p>
+
+<p>Veel succes, meesterbouwer, en moge jouw creatie een legendarische ervaring worden die men zich nog lang zal herinneren!</p>
+
+<h1>Hoofdstuk: Beheer en Configuratie via de Admin-Pagina</h1>
+
+<h2>Inleiding tot de Admin-Pagina</h2>
+
+<p>Naast de fysieke onderdelen van de Escape Room Bom Deactivatie Challenge, bevat de bom ook een digitale interface voor beheer en configuratie. Deze interface is toegankelijk via een Wi-Fi access point en biedt een scala aan configuratieopties om de werking van de bom aan te passen. Het is cruciaal om deze pagina goed te beveiligen, vooral wanneer de bom live wordt gezet.</p>
+
+<h3>Verbinden met het Wi-Fi Access Point</h3>
+
+<p>Wanneer je de bom hebt ingeschakeld, zendt de ESP8622 microcontroller een Wi-Fi signaal uit. Door met dit signaal te verbinden, krijg je toegang tot de admin-pagina. Volg de onderstaande stappen om verbinding te maken en toegang te krijgen tot de configuratieopties:</p>
+
+<ol>
+<li><p><strong>Zoek naar het Wi-Fi Signaal</strong>: Gebruik een apparaat met Wi-Fi (zoals een laptop of smartphone) om te zoeken naar beschikbare netwerken. Het netwerk zal herkenbaar zijn onder de naam <code>EscapeRoomBomb</code>.</p></li>
+<li><p><strong>Verbind met het Wi-Fi Signaal</strong>: Maak verbinding met het <code>EscapeRoomBomb</code> netwerk. Standaard is er geen wachtwoord ingesteld, maar dit kan later worden gewijzigd voor extra beveiliging.</p></li>
+<li><p><strong>Toegang tot de Admin-Pagina</strong>: Open een webbrowser en navigeer naar het volgende adres: <code>http://&lt;ip-adres&gt;/admin</code>. Vervang <code>&lt;ip-adres&gt;</code> door het specifieke IP-adres dat aan de ESP8622 is toegewezen. Dit IP-adres wordt meestal weergegeven in de netwerkdetails van je apparaat.</p></li>
+</ol>
+
+<h3>De Admin-Pagina</h3>
+
+<p>Op de admin-pagina kun je verschillende instellingen en configuraties van de bom bekijken en aanpassen. Dit is wat je kunt verwachten:</p>
+
+<ol>
+<li><p><strong>Configuratie Overzicht</strong>: Een overzicht van de huidige instellingen, inclusief de timer, dradenvolgorde en huidige status van de bom.</p></li>
+<li><p><strong>Timer Instellingen</strong>: Pas de tijdsduur aan voordat de bom ontploft.</p></li>
+<li><p><strong>Dradenvolgorde Instellingen</strong>: Stel de volgorde in van de draden die moeten worden losgetrokken om de bom te ontmantelen.</p></li>
+<li><p><strong>Buzzer Instellingen</strong>: Configureer de buzzer instellingen, zoals volume en frequentie van waarschuwingen.</p></li>
+<li><p><strong>Veiligheidsinstellingen</strong>: Verander het Wi-Fi wachtwoord en stel andere veiligheidsmaatregelen in.</p></li>
+</ol>
+
+<h3>Beveiliging van de Admin-Pagina</h3>
+
+<p>Het is essentieel om de admin-pagina te beveiligen, vooral wanneer de bom live wordt gezet. Hier zijn de stappen om dit te doen:</p>
+
+<ol>
+<li><p><strong>Stel een Wachtwoord In</strong>: Ga naar het gedeelte 'Veiligheidsinstellingen' en stel een sterk wachtwoord in voor toegang tot de admin-pagina. Dit zorgt ervoor dat alleen geautoriseerde personen wijzigingen kunnen aanbrengen.</p></li>
+<li><p><strong>Beperk Toegang</strong>: De admin-pagina is alleen toegankelijk wanneer de bom niet live is. Zodra de bom is geactiveerd, wordt de toegang tot de admin-pagina automatisch geblokkeerd om te voorkomen dat iemand de configuraties wijzigt terwijl de uitdaging bezig is.</p></li>
+</ol>
+
+<h3>Voorbeeld van het Toegangsproces</h3>
+
+<p>Hier is een voorbeeld van hoe je toegang krijgt tot de admin-pagina en de configuratie aanpast:</p>
+
+<ol>
+<li><strong>Verbinding Maken</strong>: Zoek en verbind met het <code>EscapeRoomBomb</code> Wi-Fi netwerk.</li>
+<li><strong>Open de Browser</strong>: Navigeer naar <code>http://192.168.4.1/admin</code> (gebruik het juiste IP-adres).</li>
+<li><strong>Log In</strong>: Voer het wachtwoord in dat je hebt ingesteld.</li>
+<li><strong>Maak Wijzigingen</strong>: Pas de gewenste instellingen aan en sla de wijzigingen op.</li>
+<li><strong>Verbreek de Verbinding</strong>: Zodra je klaar bent, verbreek de verbinding met het Wi-Fi netwerk om de veiligheid te waarborgen.</li>
+</ol>
+
+<h3>Belangrijke Opmerkingen</h3>
+
+<ul>
+<li><strong>Geef het Wachtwoord Niet Door</strong>: Deel het wachtwoord voor de admin-pagina alleen met geautoriseerde personen.</li>
+<li><strong>Controleer Regelmatig</strong>: Controleer regelmatig of de beveiligingsinstellingen nog steeds correct zijn en of er geen ongeoorloofde toegang heeft plaatsgevonden.</li>
+<li><strong>Wees Voorzichtig met Live Gaan</strong>: Zorg ervoor dat alle instellingen correct zijn voordat je de bom live zet, aangezien wijzigingen niet meer mogelijk zijn nadat de bom is geactiveerd.</li>
+</ul>
+
+<hr />
+
+<p>Door deze beveiligingsmaatregelen te volgen, zorg je ervoor dat de admin-pagina veilig en gecontroleerd toegankelijk is, en voorkom je ongeoorloofde wijzigingen aan de configuratie van je Escape Room Bom Deactivatie Challenge. Dit verhoogt niet alleen de veiligheid, maar ook de professionaliteit en betrouwbaarheid van je meesterwerk.</p>
+
+<h2>Conclusie</h2>
+
+<p>Met deze gedetailleerde instructies en visualisaties ben je nu volledig voorbereid om de deelnemers te instrueren hoe ze de bom op een gecontroleerde en uitdagende manier kunnen ontmantelen. Vergeet niet dat de sleutel tot een succesvolle ontmanteling ligt in de precisie en het begrip van de binaire omzetting van de heximale code. Veel succes met het opzetten van deze spannende uitdaging! Als je wilt weten hoe je de bom moet ontmantelen met de code, kijk dan <a href="defuse.html">hier</a>.</p>
+
+<h2>Veelgestelde Vragen (FAQ)</h2>
+
+<h3>Vraag: Hoe reset ik de timer?</h3>
+
+<p><strong>Antwoord</strong>: De timer wordt automatisch gereset wanneer de bom is 'ontmanteld'. Je kunt de resetknop op de microcontroller programmeren om dit te doen.</p>
+
+<h3>Vraag: Kan ik andere onderdelen gebruiken?</h3>
+
+<p><strong>Antwoord</strong>: Ja, je kunt vergelijkbare microcontrollers of displays gebruiken. Zorg er echter voor dat de pinout-structuur compatibel is.</p>
+
+<h3>Vraag: Is deze bom veilig?</h3>
+
+<p><strong>Antwoord</strong>: Absoluut. Alle onderdelen zijn decoratief en voor entertainmentdoeleinden. Er zijn geen echte explosieve materialen betrokken.</p>
+
+<hr />
+
+<h2>Debuggen en Verdere Aanpassingen</h2>
+
+<p>Blijf experimenteren met de instellingen van de bom. Je kunt:</p>
+
+<ul>
+<li>De timer instellen om sneller of langzamer af te lopen.</li>
+<li>Een RFID-scanner toevoegen om de bom alleen te laten 'ontmantelen' door een specifieke kaart.</li>
+<li>Het geluidssysteem uitbreiden voor meer dramatische effecten.</li>
+</ul>
+
+<hr />
+
+<p><strong>Gefeliciteerd!</strong> Je hebt nu niet alleen een indrukwekkende DIY bom gecreëerd, maar ook je technische vaardigheden verbeterd. Veel plezier met je nieuwe creatie, en gebruik het verantwoordelijk!</p>
+
+<hr />
+
+    </div>
+</body>
+</html>

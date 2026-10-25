@@ -1,0 +1,102 @@
+<!DOCTYPE html>
+<html lang="nl">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>htb.jmnl.nl - Handleiding DIY Bom</title>
+    <style>
+        body {
+            background-color: #121212;
+            color: #e0e0e0;
+            font-family: 'Arial', sans-serif;
+            line-height: 1.6;
+            padding: 20px;
+        }
+        h1, h2, h3, h4 {
+            color: #bb86fc;
+        }
+        a {
+            color: #03dac6;
+        }
+        code {
+            background-color: #333;
+            padding: 2px 4px;
+            border-radius: 4px;
+        }
+        pre {
+            background-color: #333;
+            padding: 10px;
+            border-radius: 8px;
+            overflow-x: auto;
+        }
+        .container {
+            max-width: 800px;
+            margin: auto;
+        }
+    </style>
+</head>
+<body>
+    <div class="container">
+        <p>versie: 0.1, 18 June 2024</p>
+	<a href="index.html">< terug</a>
+			       
+<h1>Handleiding: Ontmantelen van de Bom</h1>
+
+<h2>Inleiding tot het Ontmantelen</h2>
+
+<p>Gefeliciteerd, meesterbouwer! Nu je bom volledig is samengesteld, is het tijd om de procedures voor het ontmantelen ervan te begrijpen en te documenteren. Deze sectie zal gedetailleerd uitleggen hoe deelnemers de bom kunnen ontmantelen door vijf draden in een specifieke volgorde los te trekken. De juiste volgorde wordt bepaald door een heximale code, waarbij slechts één fout is toegestaan. Volg deze instructies zorgvuldig om ervoor te zorgen dat de bom realistisch en uitdagend is voor de deelnemers.</p>
+
+<h3>Draden en de Heximale Code</h3>
+
+<p>Bij het ontmantelen van de bom moeten de deelnemers vijf draden los trekken in een volgorde die wordt bepaald door een heximale code. De code geeft de juiste volgorde aan door groepen van 3 bits te gebruiken, te beginnen vanaf de minst significante bit (LSB).</p>
+
+<h3>Heximale Code Uitleg</h3>
+
+<ol>
+<li><p><strong>Heximale Code</strong>: De code wordt weergegeven als een hexadecimaal getal, bijvoorbeeld <code>1A3F</code>.</p></li>
+<li><p><strong>Binair Converteren</strong>: Zet de hexadecimale code om naar een binaire reeks.</p></li>
+<li><p><strong>Groepen van 3 Bits</strong>: Begin vanaf de LSB en verdeel de binaire reeks in groepen van 3 bits. Elke groep bepaalt de volgorde van een draad.</p></li>
+</ol>
+
+<h4>Voorbeeld</h4>
+
+<p>Stel, de hexadecimale code is <code>388D</code>. </p>
+
+<ol>
+<li>Zet <code>1A3F</code> om naar binair: <code>0011 1000 1000 1101</code></li>
+<li>Verdeel deze reeks in groepen van 3 bits vanaf de LSB:
+<ul>
+<li><code>101</code> (draad 5)</li>
+<li><code>001</code> (draad 1)</li>
+<li><code>010</code> (draad 2)</li>
+<li><code>100</code> (draad 4)</li>
+<li><code>011</code> (draad 3)</li>
+</ul></li>
+<li>De volgorde van los te trekken draden is dus: 5, 1, 2, 4, 3.</li>
+</ol>
+
+<h3>Ontmantelingsprocedure</h3>
+
+<ol>
+<li><strong>Lees de Heximale Code</strong>: Het display toont de hexadecimale code die de volgorde van de draden bepaalt.</li>
+<li><strong>Binaire Conversie</strong>: De deelnemer moet de code omzetten naar binair en de volgorde van de draden bepalen zoals hierboven uitgelegd.</li>
+<li><strong>Los Trekken van de Draden</strong>:
+<ul>
+<li>Trek de eerste draad in de volgorde los.</li>
+<li>Wacht op een bevestiging (hoge piep goed, lage piep niet goed).</li>
+<li>Trek de volgende draad los volgens de volgorde.</li>
+</ul></li>
+<li><strong>Foutmarge</strong>: Eén foutieve draadtrekking is toegestaan zonder directe gevolgen, maar een tweede fout zal de bom activeren (in de vorm van een alarm of een ander signaal).</li>
+</ol>
+
+<h3>Voorzorgsmaatregelen</h3>
+
+<ul>
+<li><strong>Kalmeer en Focus</strong>: Deelnemers moeten kalm blijven en gefocust werken. Paniek kan leiden tot fouten.</li>
+<li><strong>Dubbelcheck de Binaire Omzetting</strong>: Zorg ervoor dat de binaire omzetting correct is voordat je een draad los trekt.</li>
+<li><strong>Gebruik van Handschoenen</strong>: Aanbevolen om veiligheidshandschoenen te dragen om slippen te voorkomen bij het los trekken van draden.</li>
+</ul>
+
+    </div>
+</body>
+</html>
